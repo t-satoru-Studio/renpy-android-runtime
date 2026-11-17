@@ -35,7 +35,7 @@ init 1500 python hide:
 # reaches Ren'Py until the app resumes, and onStop blocks the main thread for its
 # 8 s limit. Stopping the timers as SDL pauses, which check_suspend would do first
 # anyway, lets the wait time out. check_suspend restarts them in the foreground.
-# Needs SDL_ANDROID_BLOCK_ON_PAUSE=0, which GameActivity sets.
+# Needs SDL_ANDROID_BLOCK_ON_PAUSE=0, which librenpython sets before SDL starts.
 init -1500 python hide:
     import threading
 
