@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ren\'Py 8.6 运行时</string>
+
+    <string name="info_message">运行时 %1$s\nRen\'Py %2$s\n\n所有文件访问权限：%3$s\n\n本应用为游戏启动器运行 Ren\'Py 游戏，请从启动器启动游戏。</string>
+    <string name="info_access_yes">已授予</string>
+    <string name="info_access_no">未授予</string>
+
+    <string name="access_title">需要所有文件访问权限</string>
+    <string name="access_message">Ren\'Py 游戏从所在文件夹读取数据，存档也保存在那里。请在下一个页面允许本应用访问所有文件。</string>
+    <string name="access_grant">去授权</string>
+
+    <string name="error_title">无法启动游戏</string>
+    <string name="error_bad_request">启动器发来的请求无法识别。</string>
+    <string name="error_no_game">在以下位置没有找到 Ren\'Py 游戏：\n%1$s\n\n该文件夹中必须有 \"game\" 文件夹。</string>
+    <string name="error_no_access">没有获得所有文件访问权限。</string>
+</resources>

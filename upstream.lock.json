@@ -1,0 +1,20 @@
+{
+  "renpy_version": "8.6.0",
+  "renpy_build": "8.6.0.26111403",
+  "downloads": {
+    "rapt": {
+      "url": "https://www.renpy.org/dl/8.6.0/renpy-8.6.0-rapt.zip",
+      "sha256": "37748b4a9ffacb1b36cd27a60e09fefc8dc445c7a3f7d533c9238bd60330d4fb"
+    },
+    "sdk": {
+      "url": "https://www.renpy.org/dl/8.6.0/renpy-8.6.0-sdk.tar.bz2",
+      "sha256": "5763c1d5f35de4e62e29df5387636e8bca681050c6523564db17bc09a48b3dd4"
+    }
+  },
+  "checksums_source": "https://www.renpy.org/dl/8.6.0/checksums.txt",
+  "corresponding_source": {
+    "renpy": "https://github.com/renpy/renpy/tree/8.6.0.26111403",
+    "renpy_build": "https://github.com/renpy/renpy-build/tree/renpy-8.6.0.26111403"
+  },
+  "abis": ["arm64-v8a"]
+}

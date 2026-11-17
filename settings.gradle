@@ -1,0 +1,25 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "renpy-android-runtime"
+
+// The upstream RAPT module is staged by tools/prepare.py, not checked in.
+def staged = file("build/staging/renpyandroid")
+if (!new File(staged, "build.gradle").exists()) {
+    throw new GradleException("Run `python3 tools/prepare.py` first: build/staging is missing.")
+}
+
+include ":renpyandroid", ":app"
+project(":renpyandroid").projectDir = staged

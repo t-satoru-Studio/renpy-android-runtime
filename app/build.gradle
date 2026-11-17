@@ -1,0 +1,94 @@
+plugins {
+    id "com.android.application"
+}
+
+// Release signing: a properties file outside the repository, given by the
+// RAR_SIGNING_PROPERTIES environment variable or -Prar.signingProperties=...
+// It holds storeFile, storePassword, keyAlias and keyPassword.
+def signingPropsPath = findProperty("rar.signingProperties") ?: System.getenv("RAR_SIGNING_PROPERTIES")
+def signingProps = new Properties()
+if (signingPropsPath) {
+    file(signingPropsPath).withInputStream { signingProps.load(it) }
+}
+
+def staging = rootProject.file("build/staging")
+
+android {
+    namespace = "studio.tsatoru.renpy86"
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = "studio.tsatoru.renpy86"
+        minSdk = 23
+        targetSdk = 36
+        // <major><minor:2><patch:2><revision:2>: Ren'Py 8.6.0, runtime revision 1.
+        versionCode = 8060001
+        versionName = "8.6.0-r1"
+
+        ndk {
+            abiFilters "arm64-v8a"
+        }
+
+        manifestPlaceholders = [renpyBuild: "8.6.0.26111403"]
+    }
+
+    signingConfigs {
+        if (signingPropsPath) {
+            release {
+                storeFile = file(signingProps["storeFile"])
+                storePassword = signingProps["storePassword"]
+                keyAlias = signingProps["keyAlias"]
+                keyPassword = signingProps["keyPassword"]
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+        release {
+            minifyEnabled = false
+            if (signingPropsPath) {
+                signingConfig = signingConfigs.release
+            }
+        }
+    }
+
+    sourceSets {
+        main {
+            assets.srcDirs += [new File(staging, "assets")]
+            res.srcDirs += [new File(staging, "generated-res")]
+        }
+    }
+
+    packaging {
+        jniLibs {
+            // librenpython.so is loaded from the extracted library directory.
+            useLegacyPackaging = true
+            keepDebugSymbols += ["**/*.so"]
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    lint {
+        // The staged upstream module is not ours to lint.
+        checkDependencies = false
+    }
+}
+
+dependencies {
+    implementation project(":renpyandroid")
+
+    testImplementation "junit:junit:4.13.2"
+    // Android's org.json is a stub in local unit tests.
+    testImplementation "org.json:json:20250517"
+}
