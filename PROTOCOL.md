@@ -1,66 +1,66 @@
-# Launch protocol
+# 启动协议
 
-The runtime is a Tyranor third-party runtime module (protocol 1). Tyranor's module developer guide describes the protocol itself; this page lists what this runtime declares and how it reads each value.
+本运行时是一个 Tyranor 第三方运行时模块（协议 1）。协议本身见 Tyranor 的模块开发指南；本页列出本运行时声明了什么，以及每个值是怎么读取的。
 
-## Identity
+## 身份
 
 | | |
 |---|---|
-| Package | `com.tyranor.runtime.renpy86` (debug builds: `com.tyranor.runtime.renpy86.debug`) |
-| Action | `com.tyranor.runtime.action.LAUNCH`, category `DEFAULT` |
-| Activity | `studio.tsatoru.renpy86.LaunchActivity` (exported) |
-| Module description | `<meta-data android:name="com.tyranor.runtime.MANIFEST" android:resource="@raw/tyranor_runtime">` on that activity |
-| Ren'Py build | `<meta-data android:name="studio.tsatoru.renpy86.RENPY_BUILD">`, e.g. `8.6.0.26111403` |
-| Version code | `MMmmppRR`: Ren'Py major, minor, patch and runtime revision (8.6.0 r3 = `8060003`) |
+| 包名 | `com.tyranor.runtime.renpy86`（debug 构建：`com.tyranor.runtime.renpy86.debug`） |
+| Action | `com.tyranor.runtime.action.LAUNCH`，category 为 `DEFAULT` |
+| Activity | `studio.tsatoru.renpy86.LaunchActivity`（exported） |
+| 模块描述 | 该 Activity 上的 `<meta-data android:name="com.tyranor.runtime.MANIFEST" android:resource="@raw/tyranor_runtime">` |
+| Ren'Py 构建 | `<meta-data android:name="studio.tsatoru.renpy86.RENPY_BUILD">`，例如 `8.6.0.26111403` |
+| versionCode | `MMmmppRR`：Ren'Py 主版本、次版本、补丁版本和运行时修订号（8.6.0 r3 = `8060003`） |
 
-Until 8.6.0-r2 the package was `studio.tsatoru.renpy86`, started with action `studio.tsatoru.renpy86.RUN` and JoiPlay-style extras. That entry point is gone; the two packages can be installed side by side.
+8.6.0-r2 及之前的包名是 `studio.tsatoru.renpy86`，用 action `studio.tsatoru.renpy86.RUN` 和 JoiPlay 式参数启动。这个入口已经删除；新旧两个包可以同时安装。
 
-## Module description
+## 模块描述
 
-[app/src/main/res/raw/tyranor_runtime.json](app/src/main/res/raw/tyranor_runtime.json):
+[app/src/main/res/raw/tyranor_runtime.json](app/src/main/res/raw/tyranor_runtime.json)：
 
-- **Scan**: `match: all` with markers `game` and `renpy/asynctask.py*`. `renpy/asynctask.py` first ships with Ren'Py 8.6.0, so games made with 8.5 and earlier are not claimed. The trailing `*` also matches distributions that ship only `.pyc` files.
-- **Settings** (version 1), below.
-- **Saves**: directory `saves`, where Ren'Py writes them (`<game folder>/saves`).
+- **扫描**：`match: all`，标记为 `game` 和 `renpy/asynctask.py*`。`renpy/asynctask.py` 从 Ren'Py 8.6.0 开始才有，所以用 8.5 及更早版本制作的游戏不会被认领。末尾的 `*` 也能匹配只带 `.pyc` 文件的发行版。
+- **设置**（版本 1），见下文。
+- **存档**：目录 `saves`，即 Ren'Py 写入存档的位置（`<游戏目录>/saves`）。
 
-## Extras
+## 启动参数
 
-| Extra | Use |
+| 参数 | 用途 |
 |---|---|
-| `com.tyranor.runtime.extra.FOLDER_PATH` | Absolute path of the game. Required. May be the base directory (the one containing `game/`) or `game/` itself. |
-| `com.tyranor.runtime.extra.GAME_TITLE` | Optional. Default: the folder name. |
-| `com.tyranor.runtime.extra.PROTOCOL_VERSION` | Logged. |
-| `com.tyranor.runtime.extra.SETTINGS` | `{"version": 1, "values": {...}}`. A payload that is not JSON, or has another version, is ignored as a whole; a known key with a wrong-typed value keeps its default; unknown keys are ignored. |
+| `com.tyranor.runtime.extra.FOLDER_PATH` | 游戏的绝对路径，必填。可以是游戏根目录（包含 `game/` 的那一层），也可以是 `game/` 本身。 |
+| `com.tyranor.runtime.extra.GAME_TITLE` | 可选，默认取文件夹名。 |
+| `com.tyranor.runtime.extra.PROTOCOL_VERSION` | 只写入日志。 |
+| `com.tyranor.runtime.extra.SETTINGS` | `{"version": 1, "values": {...}}`。不是 JSON 或版本不对的载荷整份忽略；已知键的值类型不对时使用默认值；未知键忽略。 |
 
-## Settings
+## 设置
 
-The defaults change nothing: with them, Ren'Py and the game decide as they would on their own.
+默认值不改变任何行为：使用默认值时，一切由 Ren'Py 和游戏自己决定。
 
-| Key | Type, default | Effect |
+| 键 | 类型、默认值 | 效果 |
 |---|---|---|
-| `hw_video` | `game` / `on` / `off`, `game` | sets `config.hw_video` after the game's init code |
-| `autosave` | `game` / `on` / `off`, `game` | sets `config.has_autosave` and `config.autosave_on_choice` after the game's init code |
-| `phone_small_variant` | boolean, `false` | `true` forces the `small phone touch android mobile` screen variants |
-| `vsync` | boolean, `true` | `false` sets `RENPY_GL_VSYNC=0` |
-| `less_memory` | boolean, `false` | `true` sets `RENPY_LESS_MEMORY` |
-| `less_updates` | boolean, `false` | `true` sets `RENPY_LESS_UPDATES` |
-| `recompile` | boolean, `false` | `true` runs Ren'Py with `--compile` (recompiles `.rpy` to `.rpyc`) |
+| `hw_video` | `game` / `on` / `off`，默认 `game` | 在游戏的初始化代码之后设置 `config.hw_video` |
+| `autosave` | `game` / `on` / `off`，默认 `game` | 在游戏的初始化代码之后设置 `config.has_autosave` 和 `config.autosave_on_choice` |
+| `phone_small_variant` | 布尔，默认 `false` | 为 `true` 时强制使用 `small phone touch android mobile` 界面变体 |
+| `vsync` | 布尔，默认 `true` | 为 `false` 时设置 `RENPY_GL_VSYNC=0` |
+| `less_memory` | 布尔，默认 `false` | 为 `true` 时设置 `RENPY_LESS_MEMORY` |
+| `less_updates` | 布尔，默认 `false` | 为 `true` 时设置 `RENPY_LESS_UPDATES` |
+| `recompile` | 布尔，默认 `false` | 为 `true` 时以 `--compile` 运行 Ren'Py（把 `.rpy` 重新编译为 `.rpyc`） |
 
-## Files
+## 文件
 
-- Saves: `<folder>/saves`. Ren'Py 8.6 may briefly create `saves.renpy-repair` or `saves.renpy-replaced` next to it while it repairs permissions.
-- Logs: `Android/data/<package>/files/logs/<id>/log.txt` and `traceback.txt`, where `<id>` is the hex of the folder path's Java `hashCode()`.
-- The game folder needs to be writable if the game compiles scripts or writes caches.
+- 存档：`<游戏目录>/saves`。Ren'Py 8.6 修复权限时，可能会在旁边短暂创建 `saves.renpy-repair` 或 `saves.renpy-replaced`。
+- 日志：`Android/data/<包名>/files/logs/<id>/log.txt` 和 `traceback.txt`，其中 `<id>` 是文件夹路径的 Java `hashCode()` 的十六进制形式。
+- 如果游戏要编译脚本或写缓存，游戏目录需要可写。
 
-## Storage access
+## 存储权限
 
-The runtime reads games from shared storage, so it needs "All files access" (Android 11+) or the storage permission (Android 6–10); Tyranor's own access does not carry over. If it is missing, `LaunchActivity` explains why and opens the system settings page, then continues the launch when the user comes back.
+运行时从共享存储读取游戏，所以需要「所有文件访问」权限（Android 11 及以上）或存储权限（Android 6–10）；Tyranor 自己的权限不会传递过来。缺少权限时，`LaunchActivity` 会说明原因并打开系统设置页，用户返回后继续启动。
 
-## Processes
+## 进程
 
-Python can start only once per process. The game runs in the `:game` process; launching a different game stops the previous one first, while launching the same game again brings it back. When the game quits, its process exits.
+一个进程里只能启动一次 Python。游戏运行在 `:game` 进程中；启动另一个游戏会先结束前一个，再次启动同一个游戏则切回原来的进程。游戏退出时，进程也随之结束。
 
-## Example
+## 示例
 
 ```sh
 adb shell am start -a com.tyranor.runtime.action.LAUNCH \
