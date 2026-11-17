@@ -18,12 +18,14 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "studio.tsatoru.renpy86"
+        // Tyranor discovers runtime modules by this package prefix (com.tyranor.runtime.*).
+        // The Java package (namespace) stays studio.tsatoru.renpy86.
+        applicationId = "com.tyranor.runtime.renpy86"
         minSdk = 23
         targetSdk = 36
-        // <major><minor:2><patch:2><revision:2>: Ren'Py 8.6.0, runtime revision 2.
-        versionCode = 8060002
-        versionName = "8.6.0-r2"
+        // <major><minor:2><patch:2><revision:2>: Ren'Py 8.6.0, runtime revision 3.
+        versionCode = 8060003
+        versionName = "8.6.0-r3"
 
         ndk {
             abiFilters "arm64-v8a"

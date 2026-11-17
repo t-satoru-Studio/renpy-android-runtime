@@ -9,20 +9,31 @@ import java.io.File;
 import java.util.Objects;
 
 /**
- * A request to run one game, parsed from the launch intent.
- *
- * <p>Two input forms are accepted (see PROTOCOL.md):
- * <ul>
- *   <li>JoiPlay-compatible: a {@code game} JSON string with {@code folder}, {@code title}
- *   and {@code id}, and a {@code settings} JSON string whose {@code renpy} object holds
- *   {@code renpy_*} switches, either bare booleans or {@code {"boolean": ...}};</li>
- *   <li>plain extras: {@code folder}, optional {@code title}, {@code id}, {@code savedir}.</li>
- * </ul>
+ * A request to run one game, parsed from the launch intent of the Tyranor runtime module
+ * protocol (see PROTOCOL.md): a game folder, an optional title and an optional
+ * {@code {"version": 1, "values": {...}}} settings payload whose keys are declared in
+ * {@code res/raw/tyranor_runtime.json}.
  */
 public final class LaunchRequest {
 
-    /** Settings the launcher can override. {@code null} means "leave Ren'Py's default". */
+    /** Version of the settings payload this runtime understands. */
+    static final int SETTINGS_VERSION = 1;
+
+    /** Settings the launcher can override. {@code null} means "leave Ren'Py's or the game's default". */
     public static final class Settings {
+        /** Enum values of {@link #KEY_HW_VIDEO} and {@link #KEY_AUTOSAVE}. */
+        static final String FOLLOW_GAME = "game";
+        static final String ON = "on";
+        static final String OFF = "off";
+
+        static final String KEY_HW_VIDEO = "hw_video";
+        static final String KEY_AUTOSAVE = "autosave";
+        static final String KEY_PHONE_SMALL_VARIANT = "phone_small_variant";
+        static final String KEY_VSYNC = "vsync";
+        static final String KEY_LESS_MEMORY = "less_memory";
+        static final String KEY_LESS_UPDATES = "less_updates";
+        static final String KEY_RECOMPILE = "recompile";
+
         public final Boolean hwVideo;
         public final Boolean autosave;
         public final Boolean phoneSmallVariant;
@@ -44,53 +55,78 @@ public final class LaunchRequest {
 
         static final Settings NONE = new Settings(null, null, null, null, null, null, null);
 
-        static Settings parse(JSONObject root) {
-            if (root == null) {
+        /**
+         * Reads the {@code values} object. Unknown keys are ignored, and a known key with a
+         * value of the wrong type keeps its default, as the module protocol asks.
+         */
+        static Settings fromValues(JSONObject values) {
+            if (values == null) {
                 return NONE;
             }
-            JSONObject renpy = root.optJSONObject("renpy");
-            JSONObject src = renpy != null ? renpy : root;
             return new Settings(
-                    flag(src, "renpy_hw_video"),
-                    flag(src, "renpy_autosave"),
-                    flag(src, "renpy_phonesmallvariant"),
-                    flag(src, "renpy_vsync"),
-                    flag(src, "renpy_less_memory"),
-                    flag(src, "renpy_less_updates"),
-                    flag(src, "renpy_recompile"));
+                    choice(values, KEY_HW_VIDEO),
+                    choice(values, KEY_AUTOSAVE),
+                    flag(values, KEY_PHONE_SMALL_VARIANT),
+                    flag(values, KEY_VSYNC),
+                    flag(values, KEY_LESS_MEMORY),
+                    flag(values, KEY_LESS_UPDATES),
+                    flag(values, KEY_RECOMPILE));
         }
 
-        private static Boolean flag(JSONObject src, String key) {
-            Object value = src.opt(key);
-            if (value instanceof JSONObject) {
-                value = ((JSONObject) value).opt("boolean");
+        /**
+         * Parses a whole settings payload. A payload that is not JSON or has another
+         * version is ignored as a whole, so the game runs with its defaults.
+         */
+        static Settings fromPayload(String payload) {
+            if (payload == null) {
+                return NONE;
             }
-            if (value instanceof Boolean) {
-                return (Boolean) value;
+            JSONObject root;
+            try {
+                root = new JSONObject(payload);
+            } catch (JSONException e) {
+                return NONE;
             }
-            if (value instanceof String) {
-                String s = (String) value;
-                if (s.equalsIgnoreCase("true")) return Boolean.TRUE;
-                if (s.equalsIgnoreCase("false")) return Boolean.FALSE;
+            Object version = root.opt("version");
+            if (!(version instanceof Integer) || (Integer) version != SETTINGS_VERSION) {
+                return NONE;
             }
+            return fromValues(root.optJSONObject("values"));
+        }
+
+        private static Boolean flag(JSONObject values, String key) {
+            Object value = values.opt(key);
+            return value instanceof Boolean ? (Boolean) value : null;
+        }
+
+        private static Boolean choice(JSONObject values, String key) {
+            Object value = values.opt(key);
+            if (ON.equals(value)) return Boolean.TRUE;
+            if (OFF.equals(value)) return Boolean.FALSE;
             return null;
         }
 
-        JSONObject toJson() throws JSONException {
+        JSONObject toValues() throws JSONException {
             JSONObject o = new JSONObject();
-            put(o, "renpy_hw_video", hwVideo);
-            put(o, "renpy_autosave", autosave);
-            put(o, "renpy_phonesmallvariant", phoneSmallVariant);
-            put(o, "renpy_vsync", vsync);
-            put(o, "renpy_less_memory", lessMemory);
-            put(o, "renpy_less_updates", lessUpdates);
-            put(o, "renpy_recompile", recompile);
-            return new JSONObject().put("renpy", o);
+            putChoice(o, KEY_HW_VIDEO, hwVideo);
+            putChoice(o, KEY_AUTOSAVE, autosave);
+            putFlag(o, KEY_PHONE_SMALL_VARIANT, phoneSmallVariant);
+            putFlag(o, KEY_VSYNC, vsync);
+            putFlag(o, KEY_LESS_MEMORY, lessMemory);
+            putFlag(o, KEY_LESS_UPDATES, lessUpdates);
+            putFlag(o, KEY_RECOMPILE, recompile);
+            return o;
         }
 
-        private static void put(JSONObject o, String key, Boolean value) throws JSONException {
+        private static void putFlag(JSONObject o, String key, Boolean value) throws JSONException {
             if (value != null) {
                 o.put(key, value.booleanValue());
+            }
+        }
+
+        private static void putChoice(JSONObject o, String key, Boolean value) throws JSONException {
+            if (value != null) {
+                o.put(key, value ? ON : OFF);
             }
         }
     }
@@ -107,42 +143,26 @@ public final class LaunchRequest {
     public final String title;
     /** Stable identifier, used for the log directory. */
     public final String id;
-    /** Save directory; {@code <folder>/saves} unless the caller chose another. */
+    /** {@code <folder>/saves}, the directory the module declares to Tyranor. */
     public final String saveDir;
     public final Settings settings;
 
-    LaunchRequest(String folder, String title, String id, String saveDir, Settings settings) {
+    private LaunchRequest(String folder, String title, String id, Settings settings) {
         this.folder = folder;
         this.title = title;
         this.id = id;
-        this.saveDir = saveDir;
+        this.saveDir = folder + "/saves";
         this.settings = settings;
     }
 
     /** Parses the launch intent's extras. Any argument may be {@code null}. */
-    public static LaunchRequest fromExtras(String gameJson, String settingsJson, String folderExtra,
-                                           String titleExtra, String idExtra, String saveDirExtra)
+    public static LaunchRequest fromExtras(String folderPath, String title, String settingsPayload)
             throws InvalidRequestException {
-        String folder = folderExtra;
-        String title = titleExtra;
-        String id = idExtra;
-
-        if (gameJson != null) {
-            JSONObject game = parseObject(gameJson, "game");
-            folder = firstNonBlank(game.optString("folder", null), folder);
-            title = firstNonBlank(game.optString("title", null), title);
-            id = firstNonBlank(game.optString("id", null), id);
-        }
-
-        Settings settings = settingsJson != null
-                ? Settings.parse(parseObject(settingsJson, "settings"))
-                : Settings.NONE;
-
-        return build(folder, title, id, saveDirExtra, settings);
+        return build(folderPath, title, null, Settings.fromPayload(settingsPayload));
     }
 
-    static LaunchRequest build(String folder, String title, String id, String saveDir,
-                               Settings settings) throws InvalidRequestException {
+    static LaunchRequest build(String folder, String title, String id, Settings settings)
+            throws InvalidRequestException {
         folder = normalizePath(folder);
         if (folder == null) {
             throw new InvalidRequestException("no game folder in the request");
@@ -153,14 +173,7 @@ public final class LaunchRequest {
 
         String resolvedId = sanitizeId(firstNonBlank(id, Integer.toHexString(folder.hashCode())));
         String resolvedTitle = firstNonBlank(title, new File(folder).getName());
-        String resolvedSaveDir = normalizePath(saveDir);
-        if (resolvedSaveDir == null) {
-            resolvedSaveDir = folder + "/saves";
-        } else if (!resolvedSaveDir.startsWith("/")) {
-            throw new InvalidRequestException("save directory is not an absolute path: " + saveDir);
-        }
-
-        return new LaunchRequest(folder, resolvedTitle, resolvedId, resolvedSaveDir,
+        return new LaunchRequest(folder, resolvedTitle, resolvedId,
                 settings == null ? Settings.NONE : settings);
     }
 
@@ -181,9 +194,7 @@ public final class LaunchRequest {
 
     /** Returns this request with another base directory, keeping everything else. */
     public LaunchRequest withFolder(String newFolder) {
-        boolean defaultSaves = saveDir.equals(folder + "/saves");
-        return new LaunchRequest(newFolder, title, id,
-                defaultSaves ? newFolder + "/saves" : saveDir, settings);
+        return new LaunchRequest(newFolder, title, id, settings);
     }
 
     /** Serialization between LaunchActivity and GameActivity. */
@@ -193,8 +204,7 @@ public final class LaunchRequest {
                     .put("folder", folder)
                     .put("title", title)
                     .put("id", id)
-                    .put("savedir", saveDir)
-                    .put("settings", settings.toJson())
+                    .put("values", settings.toValues())
                     .toString();
         } catch (JSONException e) {
             throw new IllegalStateException(e);
@@ -205,18 +215,14 @@ public final class LaunchRequest {
         if (json == null) {
             throw new InvalidRequestException("no request");
         }
-        JSONObject o = parseObject(json, "request");
-        return build(o.optString("folder", null), o.optString("title", null),
-                o.optString("id", null), o.optString("savedir", null),
-                Settings.parse(o.optJSONObject("settings")));
-    }
-
-    private static JSONObject parseObject(String json, String what) throws InvalidRequestException {
+        JSONObject o;
         try {
-            return new JSONObject(json);
+            o = new JSONObject(json);
         } catch (JSONException e) {
-            throw new InvalidRequestException(what + " is not a JSON object");
+            throw new InvalidRequestException("request is not a JSON object");
         }
+        return build(o.optString("folder", null), o.optString("title", null),
+                o.optString("id", null), Settings.fromValues(o.optJSONObject("values")));
     }
 
     static String normalizePath(String path) {
@@ -248,12 +254,11 @@ public final class LaunchRequest {
     public boolean equals(Object o) {
         if (!(o instanceof LaunchRequest)) return false;
         LaunchRequest r = (LaunchRequest) o;
-        return folder.equals(r.folder) && saveDir.equals(r.saveDir) && id.equals(r.id)
-                && Objects.equals(title, r.title);
+        return folder.equals(r.folder) && id.equals(r.id) && Objects.equals(title, r.title);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(folder, saveDir, id, title);
+        return Objects.hash(folder, id, title);
     }
 }

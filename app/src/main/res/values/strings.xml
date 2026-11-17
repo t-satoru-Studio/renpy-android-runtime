@@ -3,7 +3,7 @@
     <string name="app_name">Ren\'Py 8.6 Runtime</string>
     <string name="renpy_build" translatable="false">8.6.0.26111403</string>
 
-    <string name="info_message">Runtime %1$s\nRen\'Py %2$s\n\nAll files access: %3$s\n\nThis app runs Ren\'Py games for game launchers. Start games from your launcher.</string>
+    <string name="info_message">Runtime %1$s\nRen\'Py %2$s\n\nAll files access: %3$s\n\nThis app runs Ren\'Py 8.6 games for Tyranor. Enable it in Tyranor under Engine modules, scan your games again, then start them from Tyranor.</string>
     <string name="info_access_yes">granted</string>
     <string name="info_access_no">not granted</string>
 
@@ -12,7 +12,7 @@
     <string name="access_grant">Allow</string>
 
     <string name="error_title">Cannot start the game</string>
-    <string name="error_bad_request">The launcher sent a request this runtime does not understand.</string>
+    <string name="error_bad_request">Tyranor sent a request this runtime does not understand.</string>
     <string name="error_no_game">No Ren\'Py game was found in:\n%1$s\n\nThe folder must contain a \"game\" folder.</string>
     <string name="error_no_access">All files access was not granted.</string>
 </resources>

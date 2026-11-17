@@ -1,65 +1,60 @@
 # Launch protocol
 
-How a launcher app starts a game in this runtime.
+The runtime is a Tyranor third-party runtime module (protocol 1). Tyranor's module developer guide describes the protocol itself; this page lists what this runtime declares and how it reads each value.
 
 ## Identity
 
 | | |
 |---|---|
-| Package | `studio.tsatoru.renpy86` (debug builds: `studio.tsatoru.renpy86.debug`) |
-| Action | `studio.tsatoru.renpy86.RUN` |
+| Package | `com.tyranor.runtime.renpy86` (debug builds: `com.tyranor.runtime.renpy86.debug`) |
+| Action | `com.tyranor.runtime.action.LAUNCH`, category `DEFAULT` |
 | Activity | `studio.tsatoru.renpy86.LaunchActivity` (exported) |
+| Module description | `<meta-data android:name="com.tyranor.runtime.MANIFEST" android:resource="@raw/tyranor_runtime">` on that activity |
 | Ren'Py build | `<meta-data android:name="studio.tsatoru.renpy86.RENPY_BUILD">`, e.g. `8.6.0.26111403` |
-| Version code | `MMmmppRR`: Ren'Py major, minor, patch and runtime revision (8.6.0 r1 = `8060001`) |
+| Version code | `MMmmppRR`: Ren'Py major, minor, patch and runtime revision (8.6.0 r3 = `8060003`) |
 
-Send an explicit intent (set the package). The runtime finishes `LaunchActivity` and starts the game in its own task, so the launcher's task is not replaced.
+Until 8.6.0-r2 the package was `studio.tsatoru.renpy86`, started with action `studio.tsatoru.renpy86.RUN` and JoiPlay-style extras. That entry point is gone; the two packages can be installed side by side.
+
+## Module description
+
+[app/src/main/res/raw/tyranor_runtime.json](app/src/main/res/raw/tyranor_runtime.json):
+
+- **Scan**: `match: all` with markers `game` and `renpy/asynctask.py*`. `renpy/asynctask.py` first ships with Ren'Py 8.6.0, so games made with 8.5 and earlier are not claimed. The trailing `*` also matches distributions that ship only `.pyc` files.
+- **Settings** (version 1), below.
+- **Saves**: directory `saves`, where Ren'Py writes them (`<game folder>/saves`).
 
 ## Extras
 
-Either form works; JoiPlay-style values win where both are given.
-
-### JoiPlay-compatible
-
-The same extras launchers already build for JoiPlay's Ren'Py plugin:
-
-- `game` (String, JSON): `{"title": "...", "id": "...", "folder": "/storage/emulated/0/Games/MyGame"}`. Other keys (`execFile`, `type`) are ignored.
-- `settings` (String, JSON): `{"renpy": {"renpy_less_memory": {"boolean": true}, ...}}`. Values may also be bare booleans. The `app` object (JoiPlay's cheats) is ignored.
-
-### Plain
-
-- `folder` (String): absolute path of the game.
-- `title` (String, optional)
-- `id` (String, optional): names the log directory. Default: hex of the folder path's Java `hashCode()`.
-- `savedir` (String, optional): absolute save directory. Default: `<folder>/saves`.
-- `settings` as above.
-
-`folder` may be the game's base directory (the one that contains `game/`) or the `game/` directory itself.
+| Extra | Use |
+|---|---|
+| `com.tyranor.runtime.extra.FOLDER_PATH` | Absolute path of the game. Required. May be the base directory (the one containing `game/`) or `game/` itself. |
+| `com.tyranor.runtime.extra.GAME_TITLE` | Optional. Default: the folder name. |
+| `com.tyranor.runtime.extra.PROTOCOL_VERSION` | Logged. |
+| `com.tyranor.runtime.extra.SETTINGS` | `{"version": 1, "values": {...}}`. A payload that is not JSON, or has another version, is ignored as a whole; a known key with a wrong-typed value keeps its default; unknown keys are ignored. |
 
 ## Settings
 
-All are optional; an absent setting leaves Ren'Py's (or the game's) default.
+The defaults change nothing: with them, Ren'Py and the game decide as they would on their own.
 
-| Key | Effect |
-|---|---|
-| `renpy_less_memory` | `true` sets `RENPY_LESS_MEMORY` |
-| `renpy_less_updates` | `true` sets `RENPY_LESS_UPDATES` |
-| `renpy_vsync` | `false` sets `RENPY_GL_VSYNC=0` |
-| `renpy_phonesmallvariant` | `true` forces the `small phone touch android mobile` screen variants |
-| `renpy_recompile` | `true` runs Ren'Py with `--compile` (recompiles `.rpy` to `.rpyc`) |
-| `renpy_hw_video` | sets `config.hw_video`, after the game's init code |
-| `renpy_autosave` | sets `config.has_autosave` and `config.autosave_on_choice`, after the game's init code |
-
-`renpy_dont_use_gl2` is accepted and ignored: Ren'Py 8.6 on Android has only the `gles2` renderer.
+| Key | Type, default | Effect |
+|---|---|---|
+| `hw_video` | `game` / `on` / `off`, `game` | sets `config.hw_video` after the game's init code |
+| `autosave` | `game` / `on` / `off`, `game` | sets `config.has_autosave` and `config.autosave_on_choice` after the game's init code |
+| `phone_small_variant` | boolean, `false` | `true` forces the `small phone touch android mobile` screen variants |
+| `vsync` | boolean, `true` | `false` sets `RENPY_GL_VSYNC=0` |
+| `less_memory` | boolean, `false` | `true` sets `RENPY_LESS_MEMORY` |
+| `less_updates` | boolean, `false` | `true` sets `RENPY_LESS_UPDATES` |
+| `recompile` | boolean, `false` | `true` runs Ren'Py with `--compile` (recompiles `.rpy` to `.rpyc`) |
 
 ## Files
 
-- Saves: `savedir`, by default `<folder>/saves`. Ren'Py 8.6 may briefly create `saves.renpy-repair` or `saves.renpy-replaced` next to it while it repairs permissions; launchers that sync saves should ignore those names.
-- Logs: `Android/data/<package>/files/logs/<id>/log.txt` and `traceback.txt`.
+- Saves: `<folder>/saves`. Ren'Py 8.6 may briefly create `saves.renpy-repair` or `saves.renpy-replaced` next to it while it repairs permissions.
+- Logs: `Android/data/<package>/files/logs/<id>/log.txt` and `traceback.txt`, where `<id>` is the hex of the folder path's Java `hashCode()`.
 - The game folder needs to be writable if the game compiles scripts or writes caches.
 
 ## Storage access
 
-The runtime reads games from shared storage, so it needs "All files access" (Android 11+) or the storage permission (Android 6–10). If it is missing, `LaunchActivity` explains why and opens the system settings page, then continues the launch when the user comes back.
+The runtime reads games from shared storage, so it needs "All files access" (Android 11+) or the storage permission (Android 6–10); Tyranor's own access does not carry over. If it is missing, `LaunchActivity` explains why and opens the system settings page, then continues the launch when the user comes back.
 
 ## Processes
 
@@ -68,8 +63,8 @@ Python can start only once per process. The game runs in the `:game` process; la
 ## Example
 
 ```sh
-adb shell am start -a studio.tsatoru.renpy86.RUN \
-  -n studio.tsatoru.renpy86/.LaunchActivity \
-  --es folder /sdcard/Games/MyGame \
-  --es settings '{"renpy_less_memory":true}'
+adb shell am start -a com.tyranor.runtime.action.LAUNCH \
+  -n com.tyranor.runtime.renpy86/studio.tsatoru.renpy86.LaunchActivity \
+  --es com.tyranor.runtime.extra.FOLDER_PATH /sdcard/Games/MyGame \
+  --es com.tyranor.runtime.extra.SETTINGS '{"version":1,"values":{"less_memory":true}}'
 ```

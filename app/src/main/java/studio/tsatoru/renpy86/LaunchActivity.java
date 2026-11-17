@@ -22,22 +22,21 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Entry point for launchers (action {@code studio.tsatoru.renpy86.RUN}, see PROTOCOL.md)
- * and for the home screen icon, which shows the runtime version and storage access.
+ * Entry point for Tyranor (action {@code com.tyranor.runtime.action.LAUNCH}, see
+ * PROTOCOL.md) and for the home screen icon, which shows the runtime version and storage
+ * access.
  *
  * <p>Checks storage access and the game folder, makes sure the {@code :game} process is
  * free for this game, then starts {@link GameActivity} in its own task.
  */
 public class LaunchActivity extends Activity {
 
-    public static final String ACTION_RUN = "studio.tsatoru.renpy86.RUN";
+    public static final String ACTION_LAUNCH = "com.tyranor.runtime.action.LAUNCH";
 
-    static final String EXTRA_GAME = "game";
-    static final String EXTRA_SETTINGS = "settings";
-    static final String EXTRA_FOLDER = "folder";
-    static final String EXTRA_TITLE = "title";
-    static final String EXTRA_ID = "id";
-    static final String EXTRA_SAVEDIR = "savedir";
+    static final String EXTRA_FOLDER_PATH = "com.tyranor.runtime.extra.FOLDER_PATH";
+    static final String EXTRA_GAME_TITLE = "com.tyranor.runtime.extra.GAME_TITLE";
+    static final String EXTRA_PROTOCOL_VERSION = "com.tyranor.runtime.extra.PROTOCOL_VERSION";
+    static final String EXTRA_SETTINGS = "com.tyranor.runtime.extra.SETTINGS";
 
     private static final String TAG = "RenPyRuntime";
     private static final int REQUEST_LEGACY_STORAGE = 1;
@@ -52,19 +51,18 @@ public class LaunchActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        if (!ACTION_RUN.equals(intent.getAction())) {
+        if (!ACTION_LAUNCH.equals(intent.getAction())) {
             showInfo();
             return;
         }
 
+        String folder = intent.getStringExtra(EXTRA_FOLDER_PATH);
+        Log.i(TAG, "Launch request: folder=" + folder + " protocol="
+                + intent.getIntExtra(EXTRA_PROTOCOL_VERSION, 1));
         try {
-            pending = LaunchRequest.fromExtras(
-                    intent.getStringExtra(EXTRA_GAME),
-                    intent.getStringExtra(EXTRA_SETTINGS),
-                    intent.getStringExtra(EXTRA_FOLDER),
-                    intent.getStringExtra(EXTRA_TITLE),
-                    intent.getStringExtra(EXTRA_ID),
-                    intent.getStringExtra(EXTRA_SAVEDIR));
+            pending = LaunchRequest.fromExtras(folder,
+                    intent.getStringExtra(EXTRA_GAME_TITLE),
+                    intent.getStringExtra(EXTRA_SETTINGS));
         } catch (LaunchRequest.InvalidRequestException e) {
             Log.w(TAG, "Rejected launch request: " + e.getMessage());
             showError(getString(R.string.error_bad_request));

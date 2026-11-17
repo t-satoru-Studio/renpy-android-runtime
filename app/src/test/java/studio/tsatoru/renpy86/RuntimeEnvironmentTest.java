@@ -15,8 +15,9 @@ public class RuntimeEnvironmentTest {
     private static final File LOGS = new File("/data/logs/x");
     private static final File NO_OLD = new File("/data/files/no-old-public");
 
-    private static Map<String, String> envFor(String settingsJson) throws Exception {
-        LaunchRequest r = LaunchRequest.fromExtras(null, settingsJson, "/sdcard/koi", null, "x", null);
+    private static Map<String, String> envFor(String values) throws Exception {
+        String payload = values == null ? null : "{\"version\":1,\"values\":" + values + "}";
+        LaunchRequest r = LaunchRequest.fromExtras("/sdcard/koi", null, payload);
         return RuntimeEnvironment.build(r, LOGS, NO_OLD);
     }
 
@@ -33,19 +34,19 @@ public class RuntimeEnvironmentTest {
     }
 
     @Test
-    public void sdlHintsKeepRenPyRunningInTheBackgroundAndTrapBack() {
+    public void sdlHintsTrapBack() {
         Map<String, String> hints = RuntimeEnvironment.sdlHints();
 
-        assertEquals("0", hints.get("SDL_ANDROID_BLOCK_ON_PAUSE"));
         assertEquals("1", hints.get("SDL_ANDROID_TRAP_BACK_BUTTON"));
+        assertEquals(1, hints.size());
     }
 
     @Test
     public void mapsEnabledSwitches() throws Exception {
-        Map<String, String> env = envFor("{\"renpy\":{"
-                + "\"renpy_less_memory\":true,\"renpy_less_updates\":true,\"renpy_vsync\":false,"
-                + "\"renpy_phonesmallvariant\":true,\"renpy_recompile\":true,"
-                + "\"renpy_hw_video\":true,\"renpy_autosave\":false}}");
+        Map<String, String> env = envFor("{"
+                + "\"less_memory\":true,\"less_updates\":true,\"vsync\":false,"
+                + "\"phone_small_variant\":true,\"recompile\":true,"
+                + "\"hw_video\":\"on\",\"autosave\":\"off\"}");
 
         assertEquals("1", env.get("RENPY_LESS_MEMORY"));
         assertEquals("1", env.get("RENPY_LESS_UPDATES"));
@@ -58,9 +59,10 @@ public class RuntimeEnvironmentTest {
 
     @Test
     public void disabledSwitchesLeaveRenPyDefaults() throws Exception {
-        Map<String, String> env = envFor("{\"renpy\":{"
-                + "\"renpy_less_memory\":false,\"renpy_less_updates\":false,\"renpy_vsync\":true,"
-                + "\"renpy_phonesmallvariant\":false,\"renpy_recompile\":false}}");
+        Map<String, String> env = envFor("{"
+                + "\"less_memory\":false,\"less_updates\":false,\"vsync\":true,"
+                + "\"phone_small_variant\":false,\"recompile\":false,"
+                + "\"hw_video\":\"game\",\"autosave\":\"game\"}");
 
         // Ren'Py tests these for presence, so "off" must mean "not set".
         assertFalse(env.containsKey("RENPY_LESS_MEMORY"));
@@ -68,5 +70,8 @@ public class RuntimeEnvironmentTest {
         assertFalse(env.containsKey("RENPY_GL_VSYNC"));
         assertFalse(env.containsKey("RENPY_VARIANT"));
         assertFalse(env.containsKey("RAR_COMPILE"));
+        assertFalse(env.containsKey("RAR_HW_VIDEO"));
+        assertFalse(env.containsKey("RAR_AUTOSAVE"));
+        assertEquals(4, env.size());
     }
 }

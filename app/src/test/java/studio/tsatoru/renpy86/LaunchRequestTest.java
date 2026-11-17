@@ -5,6 +5,7 @@ package studio.tsatoru.renpy86;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Rule;
@@ -18,22 +19,23 @@ public class LaunchRequestTest {
     @Rule
     public TemporaryFolder tmp = new TemporaryFolder();
 
-    // The payload launchers build for JoiPlay's Ren'Py plugin.
-    private static final String JOIPLAY_GAME =
-            "{\"title\":\"Koi\",\"id\":\"1a2b\",\"folder\":\"/sdcard/Games/koi/\",\"execFile\":\"\",\"type\":\"renpy\"}";
-    private static final String JOIPLAY_SETTINGS = "{\"app\":{\"cheats\":{\"boolean\":false}},"
-            + "\"renpy\":{\"renpy_hw_video\":{\"boolean\":true},\"renpy_autosave\":{\"boolean\":false},"
-            + "\"renpy_phonesmallvariant\":{\"boolean\":false},\"renpy_vsync\":{\"boolean\":true},"
-            + "\"renpy_less_memory\":{\"boolean\":true},\"renpy_less_updates\":{\"boolean\":false},"
-            + "\"renpy_dont_use_gl2\":{\"boolean\":false},\"renpy_recompile\":{\"boolean\":true}}}";
+    // A payload as Tyranor sends it: every declared key, with its effective value.
+    private static final String FULL_SETTINGS = "{\"version\":1,\"values\":{"
+            + "\"hw_video\":\"on\",\"autosave\":\"off\",\"phone_small_variant\":false,"
+            + "\"vsync\":true,\"less_memory\":true,\"less_updates\":false,\"recompile\":true}}";
+
+    // The declared defaults.
+    private static final String DEFAULT_SETTINGS = "{\"version\":1,\"values\":{"
+            + "\"hw_video\":\"game\",\"autosave\":\"game\",\"phone_small_variant\":false,"
+            + "\"vsync\":true,\"less_memory\":false,\"less_updates\":false,\"recompile\":false}}";
 
     @Test
-    public void parsesJoiPlayPayload() throws Exception {
-        LaunchRequest r = LaunchRequest.fromExtras(JOIPLAY_GAME, JOIPLAY_SETTINGS, null, null, null, null);
+    public void parsesModuleExtras() throws Exception {
+        LaunchRequest r = LaunchRequest.fromExtras("/sdcard/Games/koi/", "Koi", FULL_SETTINGS);
 
         assertEquals("/sdcard/Games/koi", r.folder);
         assertEquals("Koi", r.title);
-        assertEquals("1a2b", r.id);
+        assertEquals(Integer.toHexString("/sdcard/Games/koi".hashCode()), r.id);
         assertEquals("/sdcard/Games/koi/saves", r.saveDir);
         assertEquals(Boolean.TRUE, r.settings.hwVideo);
         assertEquals(Boolean.FALSE, r.settings.autosave);
@@ -45,50 +47,71 @@ public class LaunchRequestTest {
     }
 
     @Test
-    public void parsesPlainExtrasAndBareBooleans() throws Exception {
-        LaunchRequest r = LaunchRequest.fromExtras(null, "{\"renpy_less_updates\":true}",
-                "/storage/emulated/0/vn", null, null, "/storage/emulated/0/vn-saves/");
+    public void followGameMeansNoOverride() throws Exception {
+        LaunchRequest r = LaunchRequest.fromExtras("/g", null, DEFAULT_SETTINGS);
 
-        assertEquals("/storage/emulated/0/vn", r.folder);
-        assertEquals("vn", r.title);
-        assertEquals(Integer.toHexString("/storage/emulated/0/vn".hashCode()), r.id);
-        assertEquals("/storage/emulated/0/vn-saves", r.saveDir);
-        assertEquals(Boolean.TRUE, r.settings.lessUpdates);
-        assertNull(r.settings.lessMemory);
+        assertNull(r.settings.hwVideo);
+        assertNull(r.settings.autosave);
+    }
+
+    @Test
+    public void titleDefaultsToFolderName() throws Exception {
+        assertEquals("vn", LaunchRequest.fromExtras("/storage/emulated/0/vn", " ", null).title);
+    }
+
+    @Test
+    public void ignoresUnusableSettingsPayloads() throws Exception {
+        for (String payload : new String[]{null, "{not json", "{\"version\":2,\"values\":{\"recompile\":true}}",
+                "{\"version\":\"1\",\"values\":{\"recompile\":true}}"}) {
+            assertSame(payload, LaunchRequest.Settings.NONE, LaunchRequest.fromExtras("/g", null, payload).settings);
+        }
+    }
+
+    @Test
+    public void wrongTypedOrUnknownValuesKeepDefaults() throws Exception {
+        LaunchRequest r = LaunchRequest.fromExtras("/g", null, "{\"version\":1,\"values\":{"
+                + "\"recompile\":\"true\",\"hw_video\":true,\"autosave\":\"maybe\",\"extra\":1}}");
+
+        assertNull(r.settings.recompile);
+        assertNull(r.settings.hwVideo);
+        assertNull(r.settings.autosave);
     }
 
     @Test(expected = LaunchRequest.InvalidRequestException.class)
     public void rejectsMissingFolder() throws Exception {
-        LaunchRequest.fromExtras("{\"title\":\"x\"}", null, null, null, null, null);
+        LaunchRequest.fromExtras(null, "x", null);
     }
 
     @Test(expected = LaunchRequest.InvalidRequestException.class)
     public void rejectsRelativeFolder() throws Exception {
-        LaunchRequest.fromExtras(null, null, "Games/koi", null, null, null);
-    }
-
-    @Test(expected = LaunchRequest.InvalidRequestException.class)
-    public void rejectsMalformedJson() throws Exception {
-        LaunchRequest.fromExtras("{not json", null, null, null, null, null);
+        LaunchRequest.fromExtras("Games/koi", null, null);
     }
 
     @Test
     public void sanitizesIdForUseAsDirectoryName() throws Exception {
-        LaunchRequest r = LaunchRequest.fromExtras(null, null, "/g", null, "../evil/id", null);
+        LaunchRequest r = LaunchRequest.build("/g", null, "../evil/id", null);
         assertFalse(r.id.contains("/"));
         assertFalse(r.id.startsWith("."));
     }
 
     @Test
     public void roundTripsThroughJson() throws Exception {
-        LaunchRequest r = LaunchRequest.fromExtras(JOIPLAY_GAME, JOIPLAY_SETTINGS, null, null, null, null);
+        LaunchRequest r = LaunchRequest.fromExtras("/sdcard/Games/koi", "Koi", FULL_SETTINGS);
         LaunchRequest back = LaunchRequest.fromJson(r.toJson());
 
         assertEquals(r, back);
-        assertEquals(r.settings.recompile, back.settings.recompile);
+        assertEquals(r.saveDir, back.saveDir);
+        assertEquals(r.settings.hwVideo, back.settings.hwVideo);
         assertEquals(r.settings.autosave, back.settings.autosave);
         assertEquals(r.settings.phoneSmallVariant, back.settings.phoneSmallVariant);
-        assertEquals(r.settings.hwVideo, back.settings.hwVideo);
+        assertEquals(r.settings.vsync, back.settings.vsync);
+        assertEquals(r.settings.lessMemory, back.settings.lessMemory);
+        assertEquals(r.settings.lessUpdates, back.settings.lessUpdates);
+        assertEquals(r.settings.recompile, back.settings.recompile);
+
+        LaunchRequest plain = LaunchRequest.fromJson(LaunchRequest.fromExtras("/g", null, DEFAULT_SETTINGS).toJson());
+        assertNull(plain.settings.hwVideo);
+        assertNull(plain.settings.autosave);
     }
 
     @Test
@@ -103,11 +126,11 @@ public class LaunchRequestTest {
     }
 
     @Test
-    public void withFolderKeepsCustomSaveDir() throws Exception {
-        LaunchRequest defaults = LaunchRequest.fromExtras(null, null, "/g/game", null, null, null);
-        assertEquals("/g/saves", defaults.withFolder("/g").saveDir);
+    public void withFolderMovesSaves() throws Exception {
+        LaunchRequest r = LaunchRequest.fromExtras("/g/game", null, null);
+        LaunchRequest moved = r.withFolder("/g");
 
-        LaunchRequest custom = LaunchRequest.fromExtras(null, null, "/g/game", null, null, "/s");
-        assertEquals("/s", custom.withFolder("/g").saveDir);
+        assertEquals("/g/saves", moved.saveDir);
+        assertEquals(r.id, moved.id);
     }
 }

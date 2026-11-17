@@ -35,14 +35,18 @@
             android:exported="true"
             android:excludeFromRecents="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <!-- Tyranor runtime module protocol 1: discovery, scan description, launch. -->
             <intent-filter>
-                <action android:name="studio.tsatoru.renpy86.RUN" />
+                <action android:name="com.tyranor.runtime.action.LAUNCH" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="com.tyranor.runtime.MANIFEST"
+                android:resource="@raw/tyranor_runtime" />
         </activity>
 
         <!-- Ren'Py itself. Python can start only once per process, hence :game. -->

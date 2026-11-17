@@ -66,18 +66,12 @@ public final class RuntimeEnvironment {
      */
     public static Map<String, String> sdlHints() {
         Map<String, String> hints = new LinkedHashMap<>();
-
-        // Ren'Py asks SDL not to block the app while it is paused, so that it can save
-        // and release resources when sent to the background (renpy/display/core.py,
-        // post_init). SDL 3 reads this hint once, when video starts, and Ren'Py sets it
-        // only after that, so it never takes effect: SDL then holds the Python thread
-        // until the app resumes, Ren'Py cannot answer RAPT's onStop, and the main
-        // thread waits there for 8 seconds.
-        hints.put("SDL_ANDROID_BLOCK_ON_PAUSE", "0");
-
         // Ren'Py maps the back key to rollback (K_AC_BACK in 00keymap.rpy), but SDL
         // finishes the activity on back unless this hint is set. Android 13 and later
         // use GameActivity's back callback instead.
+        //
+        // SDL_ANDROID_BLOCK_ON_PAUSE=0 is not needed here: librenpython's SDL_main sets
+        // it before SDL starts.
         hints.put("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
         return hints;
     }

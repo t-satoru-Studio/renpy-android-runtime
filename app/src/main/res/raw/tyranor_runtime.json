@@ -1,0 +1,52 @@
+{
+  "protocol": 1,
+  "label": "Ren'Py 8.6",
+  "scan": {
+    "match": "all",
+    "markers": ["game", "renpy/asynctask.py*"]
+  },
+  "settings": {
+    "version": 1,
+    "items": [
+      {
+        "key": "hw_video", "type": "enum", "title": "硬件视频解码", "default": "game",
+        "description": "设置 config.hw_video。「跟随游戏」不修改游戏自己的设置。",
+        "options": [
+          { "value": "game", "title": "跟随游戏" },
+          { "value": "on", "title": "开" },
+          { "value": "off", "title": "关" }
+        ]
+      },
+      {
+        "key": "autosave", "type": "enum", "title": "自动存档", "default": "game",
+        "description": "设置 config.has_autosave 与 config.autosave_on_choice。「跟随游戏」不修改游戏自己的设置。",
+        "options": [
+          { "value": "game", "title": "跟随游戏" },
+          { "value": "on", "title": "开" },
+          { "value": "off", "title": "关" }
+        ]
+      },
+      {
+        "key": "phone_small_variant", "type": "boolean", "title": "强制手机小屏界面", "default": false,
+        "description": "使用 small phone touch android mobile 界面变体。"
+      },
+      {
+        "key": "vsync", "type": "boolean", "title": "垂直同步", "default": true,
+        "description": "关闭时设置 RENPY_GL_VSYNC=0。"
+      },
+      {
+        "key": "less_memory", "type": "boolean", "title": "减少内存占用", "default": false,
+        "description": "设置 RENPY_LESS_MEMORY。"
+      },
+      {
+        "key": "less_updates", "type": "boolean", "title": "减少画面刷新", "default": false,
+        "description": "设置 RENPY_LESS_UPDATES。"
+      },
+      {
+        "key": "recompile", "type": "boolean", "title": "启动时重新编译脚本", "default": false,
+        "description": "以 --compile 运行，把 .rpy 重新编译成 .rpyc。游戏目录需要可写。"
+      }
+    ]
+  },
+  "saves": { "version": 1, "directory": "saves" }
+}
