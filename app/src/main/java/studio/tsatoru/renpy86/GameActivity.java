@@ -5,6 +5,8 @@ package studio.tsatoru.renpy86;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
+import android.system.ErrnoException;
+import android.system.Os;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.window.OnBackInvokedCallback;
@@ -43,6 +45,14 @@ public class GameActivity extends PythonSDLActivity {
         if (request != null) {
             new GameSession(Process.myPid(), request.folder).write(getFilesDir());
             Log.i(TAG, "Running " + request.folder + ", saves in " + request.saveDir);
+        }
+
+        for (Map.Entry<String, String> hint : RuntimeEnvironment.sdlHints().entrySet()) {
+            try {
+                Os.setenv(hint.getKey(), hint.getValue(), true);
+            } catch (ErrnoException e) {
+                Log.w(TAG, "Could not set " + hint.getKey() + ": " + e.getMessage());
+            }
         }
 
         super.onCreate(savedInstanceState);
@@ -90,6 +100,15 @@ public class GameActivity extends PythonSDLActivity {
         for (Map.Entry<String, String> e : env.entrySet()) {
             nativeSetEnv(e.getKey(), e.getValue());
         }
+    }
+
+    /**
+     * Whether SDL has paused the native side (the surface is gone). Read by the pause
+     * watcher in runtime/common/00runtime_overrides.rpy; returns a primitive so that
+     * Python threads need no app class loader to use it.
+     */
+    public static boolean isNativePaused() {
+        return mCurrentNativeState == NativeState.PAUSED;
     }
 
     @Override

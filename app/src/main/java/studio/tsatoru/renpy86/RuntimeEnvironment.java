@@ -41,11 +41,6 @@ public final class RuntimeEnvironment {
         env.put("ANDROID_PUBLIC", logDir.getAbsolutePath());
         env.put("ANDROID_OLD_PUBLIC", noOldPublic.getAbsolutePath());
 
-        // Ren'Py maps the back key to rollback (K_AC_BACK in 00keymap.rpy), but SDL3
-        // finishes the activity on back unless this hint is set, and Ren'Py 8.6 does
-        // not set it. SDL reads hints from the environment.
-        env.put("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
-
         if (Boolean.TRUE.equals(s.lessMemory)) {
             env.put("RENPY_LESS_MEMORY", "1");
         }
@@ -62,6 +57,29 @@ public final class RuntimeEnvironment {
         putFlag(env, "RAR_HW_VIDEO", s.hwVideo);
         putFlag(env, "RAR_AUTOSAVE", s.autosave);
         return env;
+    }
+
+    /**
+     * SDL hints, given as environment variables. SDL copies the process environment
+     * once, when its main thread starts (SDL_InitMainThread), so these must be set
+     * before PythonSDLActivity.onCreate, not in preparePython like the rest.
+     */
+    public static Map<String, String> sdlHints() {
+        Map<String, String> hints = new LinkedHashMap<>();
+
+        // Ren'Py asks SDL not to block the app while it is paused, so that it can save
+        // and release resources when sent to the background (renpy/display/core.py,
+        // post_init). SDL 3 reads this hint once, when video starts, and Ren'Py sets it
+        // only after that, so it never takes effect: SDL then holds the Python thread
+        // until the app resumes, Ren'Py cannot answer RAPT's onStop, and the main
+        // thread waits there for 8 seconds.
+        hints.put("SDL_ANDROID_BLOCK_ON_PAUSE", "0");
+
+        // Ren'Py maps the back key to rollback (K_AC_BACK in 00keymap.rpy), but SDL
+        // finishes the activity on back unless this hint is set. Android 13 and later
+        // use GameActivity's back callback instead.
+        hints.put("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
+        return hints;
     }
 
     private static void putFlag(Map<String, String> env, String name, Boolean value) {

@@ -28,9 +28,16 @@ public class RuntimeEnvironmentTest {
         assertEquals("/sdcard/koi/saves", env.get("RAR_SAVEDIR"));
         assertEquals("/data/logs/x", env.get("ANDROID_PUBLIC"));
         assertEquals("/data/files/no-old-public", env.get("ANDROID_OLD_PUBLIC"));
-        assertEquals("1", env.get("SDL_ANDROID_TRAP_BACK_BUTTON"));
         // Nothing else when no setting was given: Ren'Py and the game decide.
-        assertEquals(5, env.size());
+        assertEquals(4, env.size());
+    }
+
+    @Test
+    public void sdlHintsKeepRenPyRunningInTheBackgroundAndTrapBack() {
+        Map<String, String> hints = RuntimeEnvironment.sdlHints();
+
+        assertEquals("0", hints.get("SDL_ANDROID_BLOCK_ON_PAUSE"));
+        assertEquals("1", hints.get("SDL_ANDROID_TRAP_BACK_BUTTON"));
     }
 
     @Test

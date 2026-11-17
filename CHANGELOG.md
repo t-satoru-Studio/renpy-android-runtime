@@ -1,6 +1,11 @@
 # Changelog
 
-## 8.6.0-r1 (unreleased)
+## 8.6.0-r2
+
+- Fix: sending the game to the background blocked the main thread for 8 seconds, and Ren'Py saved only when the game came back. SDL hints are now set before SDL starts (`SDL_ANDROID_BLOCK_ON_PAUSE=0`, which Ren'Py sets too late), and Ren'Py's timers are stopped when SDL pauses, so SDL can deliver the background event. `onStop` now takes about 1 s, including Ren'Py's save.
+- `SDL_ANDROID_TRAP_BACK_BUTTON` is now actually seen by SDL (it was set after SDL had copied the environment).
+
+## 8.6.0-r1
 
 First version.
 

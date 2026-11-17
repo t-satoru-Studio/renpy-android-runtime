@@ -15,7 +15,7 @@ Ren'Py's official Android support (RAPT) packages one game into one APK. This ap
 | Engine, Python, SDL3 (`librenpython.so`), Ren'Py Android Java | Official `renpy-8.6.0-rapt.zip`, unmodified |
 | Ren'Py Python code, standard library, `renpy/common` | Official `renpy-8.6.0-sdk.tar.bz2`, unmodified, laid out as RAPT does |
 | `main.py` | Ren'Py's `renpy.py` plus a short prelude ([runtime/main_prelude.py](runtime/main_prelude.py)) |
-| Launcher settings Ren'Py has no switch for | [runtime/common/00runtime_overrides.rpy](runtime/common/00runtime_overrides.rpy) |
+| Launcher settings Ren'Py has no switch for, background workaround | [runtime/common/00runtime_overrides.rpy](runtime/common/00runtime_overrides.rpy) |
 | Launch handling | [app/src/main/java](app/src/main/java/studio/tsatoru/renpy86) |
 
 `librenpython` always runs `python main.py` and ignores command line arguments, so `GameActivity` passes the game through environment variables in `preparePython()`, and the prelude turns them into Ren'Py's normal command line: `main.py <game folder> --savedir <dir>`. With a base directory given, Ren'Py reads the game from the file system instead of the APK.
@@ -42,13 +42,16 @@ The properties file holds `storeFile`, `storePassword`, `keyAlias` and `keyPassw
 
 ## Status
 
-Tested on one phone (Android 16, Snapdragon 8s Gen 3, arm64) with Ren'Py 8.6.0 games: a commercial-size game (5.6 GB of RPA archives, video, CJK text) and Ren'Py's own sample game. Checked: start from a launcher, rendering, touch, back as rollback, saving to `<game>/saves`, switching games, relaunching the running game, the storage permission flow and error messages. See [CHANGELOG.md](CHANGELOG.md).
+Tested on one phone (Android 16, Snapdragon 8s Gen 3, arm64) with Ren'Py 8.6.0 games: a commercial-size game (5.6 GB of RPA archives, video, CJK text) and Ren'Py's own sample game. Checked: start from a launcher, rendering, touch, back as rollback, saving to `<game>/saves`, going to the background and back, switching games, relaunching the running game, the storage permission flow and error messages. See [CHANGELOG.md](CHANGELOG.md).
 
 Known issues:
 
-- When the game goes to the background, Ren'Py's Python thread does not handle the event until the game comes back, so RAPT's `onStop` waits its 8-second limit on the main thread and the background save happens only on return. This is in the unmodified upstream code; Ren'Py's own Android builds are expected to behave the same.
 - First start of a large game reads all archive indexes from shared storage, which took about 15 s on the test phone (4 s when cached).
 
+Upstream problems this runtime works around (Ren'Py 8.6.0 with SDL 3.4.18 on Android, so Ren'Py's own Android builds are likely affected too):
+
+- **Back closes the game on Android 16.** Apps targeting API 36 get back only through the back dispatcher, never as a key event, so SDL cannot keep it and the activity finishes under the running game. `GameActivity` registers a back callback that sends Ren'Py the back key (rollback).
+- **8-second main-thread stall when sent to the background, and no background save.** Ren'Py sets `SDL_ANDROID_BLOCK_ON_PAUSE=0`, but only after SDL has read it. And even without blocking, SDL's `Android_PumpEvents` returns only after a lifecycle wait times out quietly, which never happens while Ren'Py's 50 ms timer keeps waking it. So `SDL_EVENT_WILL_ENTER_BACKGROUND` reaches Ren'Py only on resume, and RAPT's `onStop` waits its 8 s limit. The runtime sets the hint before SDL starts and stops Ren'Py's timers when SDL pauses (`runtime/common/00runtime_overrides.rpy`); `onStop` now ends in about 1 s, after Ren'Py has saved.
 Not supported: games made with Ren'Py 7 (Python 2), games that need native Python modules for other platforms, Live2D (the Cubism library is not bundled).
 
 ## License
