@@ -6,6 +6,8 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Only to ask GitHub for the latest release of this runtime (UpdateChecker). -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Games live in shared storage, where launchers keep them. -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"

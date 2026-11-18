@@ -23,13 +23,13 @@ public class LaunchRequestTest {
     private static final String FULL_SETTINGS = "{\"version\":1,\"values\":{"
             + "\"hw_video\":\"on\",\"autosave\":\"off\",\"phone_small_variant\":false,"
             + "\"vsync\":true,\"less_memory\":true,\"less_updates\":false,\"recompile\":true,"
-            + "\"virtual_keys\":false,\"gamepad\":false}}";
+            + "\"virtual_keys\":false,\"gamepad\":false,\"update_check\":false}}";
 
     // The declared defaults.
     private static final String DEFAULT_SETTINGS = "{\"version\":1,\"values\":{"
             + "\"hw_video\":\"game\",\"autosave\":\"game\",\"phone_small_variant\":false,"
             + "\"vsync\":true,\"less_memory\":false,\"less_updates\":false,\"recompile\":false,"
-            + "\"virtual_keys\":true,\"gamepad\":true}}";
+            + "\"virtual_keys\":true,\"gamepad\":true,\"update_check\":true}}";
 
     @Test
     public void parsesModuleExtras() throws Exception {
@@ -48,6 +48,7 @@ public class LaunchRequestTest {
         assertEquals(Boolean.TRUE, r.settings.recompile);
         assertEquals(Boolean.FALSE, r.settings.virtualKeys);
         assertEquals(Boolean.FALSE, r.settings.gamepad);
+        assertEquals(Boolean.FALSE, r.settings.updateCheck);
     }
 
     @Test

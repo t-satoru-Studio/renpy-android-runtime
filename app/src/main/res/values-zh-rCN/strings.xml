@@ -41,4 +41,10 @@
     <string name="vkey_quick_load">快读</string>
     <string name="vkey_gamepad">手柄</string>
     <string name="vkey_toolbar">工具栏</string>
+
+    <string name="update_checking">正在检查更新…</string>
+    <string name="update_available">运行时有新版本 %1$s</string>
+    <string name="update_latest">已是最新版本。</string>
+    <string name="update_failed">无法检查更新。</string>
+    <string name="update_view">查看</string>
 </resources>

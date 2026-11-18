@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package studio.tsatoru.renpy86;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
@@ -181,6 +185,61 @@ public class GameActivity extends PythonSDLActivity {
                 gamepad.setVisibility(View.VISIBLE);
             }
         });
+        if (request != null && !Boolean.FALSE.equals(request.settings.updateCheck)) {
+            checkForUpdate();
+        }
+    }
+
+    /**
+     * Once the game is up: asks GitHub for the latest runtime at most once a day, and
+     * shows a notice when a newer one is out (see {@link UpdateChecker}).
+     */
+    private void checkForUpdate() {
+        SharedPreferences prefs = UpdateChecker.preferences(this);
+        long installed = UpdateChecker.installedVersionCode(this);
+        String userAgentVersion = UpdateChecker.installedVersionName(this);
+        Thread t = new Thread(() -> {
+            long now = System.currentTimeMillis();
+            if (UpdateChecker.due(prefs, now)) {
+                UpdateChecker.Release latest = null;
+                try {
+                    latest = UpdateChecker.fetch(userAgentVersion);
+                } catch (Exception e) {
+                    Log.i(TAG, "Update check failed: " + e);
+                }
+                UpdateChecker.store(prefs, latest, now);
+            }
+            UpdateChecker.Release release = UpdateChecker.cached(prefs);
+            if (UpdateChecker.shouldNotify(prefs, release, installed, now)) {
+                UpdateChecker.noticed(prefs, now);
+                runOnUiThread(() -> showUpdateNotice(prefs, release));
+            }
+        }, "rar-update-check");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    private void showUpdateNotice(SharedPreferences prefs, UpdateChecker.Release release) {
+        if (isFinishing()) {
+            return;
+        }
+        UpdateNotice notice = new UpdateNotice(this, release.tag, new UpdateNotice.Listener() {
+            @Override
+            public void onView() {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(release.url)));
+                } catch (ActivityNotFoundException e) {
+                    Log.w(TAG, "No browser for " + release.url);
+                }
+            }
+
+            @Override
+            public void onClose() {
+                UpdateChecker.dismiss(prefs, release);
+            }
+        });
+        mLayout.addView(notice, new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     /**

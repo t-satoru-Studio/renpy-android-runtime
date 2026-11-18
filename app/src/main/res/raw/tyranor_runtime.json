@@ -35,6 +35,10 @@
         "description": "JoiPlay 的虚拟手柄和工具栏（关闭、旋转、静音、键盘、设置），从屏幕虚拟按键的「手柄」「工具栏」打开；关闭屏幕虚拟按键时，改用屏幕上下边缘中间的箭头。按键可以在手柄设置里修改，保存在游戏目录的 gamepad.json，与 JoiPlay 通用。"
       },
       {
+        "key": "update_check", "type": "boolean", "title": "检查运行时更新", "default": true,
+        "description": "游戏启动后，每天最多一次在后台向 GitHub 查询本运行时的新版本，有新版本时在画面下方提示。只请求公开的发布信息，不发送设备或游戏信息。关闭后只在从桌面打开本应用时检查。"
+      },
+      {
         "key": "phone_small_variant", "type": "boolean", "title": "强制手机小屏界面", "default": false,
         "description": "使用 small phone touch android mobile 界面变体。"
       },

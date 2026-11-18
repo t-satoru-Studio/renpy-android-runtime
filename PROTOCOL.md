@@ -34,7 +34,7 @@
 
 ## 设置
 
-Ren'Py 相关的设置项，默认值不改变任何行为：使用默认值时，一切由 Ren'Py 和游戏自己决定。`virtual_keys` 和 `gamepad` 只控制运行时自己画在游戏上面的按键。
+Ren'Py 相关的设置项，默认值不改变任何行为：使用默认值时，一切由 Ren'Py 和游戏自己决定。`virtual_keys`、`gamepad` 和 `update_check` 只控制运行时自己的功能。
 
 | 键 | 类型、默认值 | 效果 |
 |---|---|---|
@@ -46,6 +46,7 @@ Ren'Py 相关的设置项，默认值不改变任何行为：使用默认值时�
 | `less_updates` | 布尔，默认 `false` | 为 `true` 时设置 `RENPY_LESS_UPDATES` |
 | `recompile` | 布尔，默认 `false` | 为 `true` 时以 `--compile` 运行 Ren'Py（把 `.rpy` 重新编译为 `.rpyc`） |
 | `virtual_keys` | 布尔，默认 `true` | 为 `false` 时不显示屏幕右侧的 ☰ 虚拟按键面板 |
+| `update_check` | 布尔，默认 `true` | 为 `false` 时游戏中不检查运行时更新（从桌面打开本应用时仍会检查） |
 | `gamepad` | 布尔，默认 `true` | 为 `false` 时不显示 JoiPlay 虚拟手柄。键位保存在 `<游戏目录>/gamepad.json`，与 JoiPlay 通用 |
 
 ## 文件

@@ -35,6 +35,7 @@ public final class LaunchRequest {
         static final String KEY_RECOMPILE = "recompile";
         static final String KEY_VIRTUAL_KEYS = "virtual_keys";
         static final String KEY_GAMEPAD = "gamepad";
+        static final String KEY_UPDATE_CHECK = "update_check";
 
         public final Boolean hwVideo;
         public final Boolean autosave;
@@ -47,10 +48,12 @@ public final class LaunchRequest {
         public final Boolean virtualKeys;
         /** JoiPlay's virtual gamepad; {@code null} means shown, the declared default. */
         public final Boolean gamepad;
+        /** Checking GitHub for a newer runtime from games; {@code null} means on. */
+        public final Boolean updateCheck;
 
         public Settings(Boolean hwVideo, Boolean autosave, Boolean phoneSmallVariant, Boolean vsync,
                         Boolean lessMemory, Boolean lessUpdates, Boolean recompile,
-                        Boolean virtualKeys, Boolean gamepad) {
+                        Boolean virtualKeys, Boolean gamepad, Boolean updateCheck) {
             this.hwVideo = hwVideo;
             this.autosave = autosave;
             this.phoneSmallVariant = phoneSmallVariant;
@@ -60,9 +63,10 @@ public final class LaunchRequest {
             this.recompile = recompile;
             this.virtualKeys = virtualKeys;
             this.gamepad = gamepad;
+            this.updateCheck = updateCheck;
         }
 
-        static final Settings NONE = new Settings(null, null, null, null, null, null, null, null, null);
+        static final Settings NONE = new Settings(null, null, null, null, null, null, null, null, null, null);
 
         /**
          * Reads the {@code values} object. Unknown keys are ignored, and a known key with a
@@ -81,7 +85,8 @@ public final class LaunchRequest {
                     flag(values, KEY_LESS_UPDATES),
                     flag(values, KEY_RECOMPILE),
                     flag(values, KEY_VIRTUAL_KEYS),
-                    flag(values, KEY_GAMEPAD));
+                    flag(values, KEY_GAMEPAD),
+                    flag(values, KEY_UPDATE_CHECK));
         }
 
         /**
@@ -128,6 +133,7 @@ public final class LaunchRequest {
             putFlag(o, KEY_RECOMPILE, recompile);
             putFlag(o, KEY_VIRTUAL_KEYS, virtualKeys);
             putFlag(o, KEY_GAMEPAD, gamepad);
+            putFlag(o, KEY_UPDATE_CHECK, updateCheck);
             return o;
         }
 

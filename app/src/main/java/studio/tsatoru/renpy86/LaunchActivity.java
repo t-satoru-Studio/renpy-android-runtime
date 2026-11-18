@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -17,6 +18,7 @@ import android.os.Looper;
 import android.os.Process;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
 
 import java.io.File;
 import java.util.List;
@@ -212,16 +214,68 @@ public class LaunchActivity extends Activity {
 
     private void showInfo() {
         String access = getString(hasStorageAccess() ? R.string.info_access_yes : R.string.info_access_no);
+        String info = getString(R.string.info_message, versionName(), getString(R.string.renpy_build), access);
         AlertDialog.Builder b = dialog()
                 .setTitle(R.string.app_name)
-                .setMessage(getString(R.string.info_message, versionName(),
-                        getString(R.string.renpy_build), access))
+                .setMessage(info + "\n\n" + getString(R.string.update_checking))
                 .setPositiveButton(android.R.string.ok, (d, w) -> finish())
+                // Shown once a newer release is found.
+                .setNegativeButton(R.string.update_view, null)
                 .setOnCancelListener(d -> finish());
         if (!hasStorageAccess()) {
             b.setNeutralButton(R.string.access_grant, (d, w) -> requestStorageAccess());
         }
-        b.show();
+        AlertDialog dialog = b.show();
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setVisibility(View.GONE);
+        checkForUpdate(dialog, info);
+    }
+
+    /** Opening the runtime from the home screen always asks GitHub for the latest release. */
+    private void checkForUpdate(AlertDialog dialog, String info) {
+        long installed = UpdateChecker.installedVersionCode(this);
+        String userAgentVersion = UpdateChecker.installedVersionName(this);
+        SharedPreferences prefs = UpdateChecker.preferences(this);
+        Thread t = new Thread(() -> {
+            UpdateChecker.Release latest;
+            boolean failed = false;
+            try {
+                latest = UpdateChecker.fetch(userAgentVersion);
+                UpdateChecker.store(prefs, latest, System.currentTimeMillis());
+            } catch (Exception e) {
+                Log.i(TAG, "Update check failed: " + e);
+                latest = UpdateChecker.cached(prefs);
+                failed = true;
+            }
+            UpdateChecker.Release release = latest;
+            boolean newer = release != null && release.versionCode > installed;
+            String status;
+            if (newer) {
+                status = getString(R.string.update_available, release.tag);
+            } else if (failed) {
+                status = getString(R.string.update_failed);
+            } else {
+                status = getString(R.string.update_latest);
+            }
+            runOnUiThread(() -> {
+                if (!dialog.isShowing()) {
+                    return;
+                }
+                dialog.setMessage(info + "\n\n" + status);
+                if (newer) {
+                    android.widget.Button view = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                    view.setVisibility(View.VISIBLE);
+                    view.setOnClickListener(v -> {
+                        try {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(release.url)));
+                        } catch (android.content.ActivityNotFoundException e) {
+                            Log.w(TAG, "No browser for " + release.url);
+                        }
+                    });
+                }
+            });
+        }, "rar-update-check");
+        t.setDaemon(true);
+        t.start();
     }
 
     private void showError(String message) {

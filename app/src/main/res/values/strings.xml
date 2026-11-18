@@ -44,4 +44,12 @@
     <string name="vkey_quick_load">Q.Load</string>
     <string name="vkey_gamepad">Gamepad</string>
     <string name="vkey_toolbar">Toolbar</string>
+
+    <!-- Update check (UpdateChecker, UpdateNotice, LaunchActivity). -->
+    <string name="update_checking">Checking for updates…</string>
+    <string name="update_available">Runtime %1$s is available</string>
+    <string name="update_latest">This is the latest version.</string>
+    <string name="update_failed">Could not check for updates.</string>
+    <string name="update_view">View</string>
+    <string name="update_close">✕</string>
 </resources>
