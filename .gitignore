@@ -1,5 +1,6 @@
 /build/
 /app/build/
+/third_party/joiplay/*/build/
 .gradle/
 local.properties
 *.jks

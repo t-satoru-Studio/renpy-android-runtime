@@ -22,9 +22,10 @@ Ren'Py 官方的 Android 支持（RAPT）会把一个游戏打包成一个 APK�
 |---|---|
 | 引擎、Python、SDL3（`librenpython.so`）、Ren'Py 的 Android Java 代码 | 官方 `renpy-8.6.0-rapt.zip`，未修改 |
 | Ren'Py 的 Python 代码、标准库、`renpy/common` | 官方 `renpy-8.6.0-sdk.tar.bz2`，未修改，按 RAPT 的方式布置 |
-| `main.py` | Ren'Py 的 `renpy.py`，加上一小段前置代码（[runtime/main_prelude.py](runtime/main_prelude.py)） |
-| Ren'Py 没有开关的设置项、切后台问题的绕过 | [runtime/common/00runtime_overrides.rpy](runtime/common/00runtime_overrides.rpy) |
-| 启动处理 | [app/src/main/java](app/src/main/java/studio/tsatoru/renpy86) |
+| `main.py` | Ren'Py 的 `renpy.py`，加上一小段前置代码（[runtime/main_prelude.py](runtime/main_prelude.py)）：传递游戏信息，并向加载画面报告进度 |
+| Ren'Py 没有开关的设置项、切后台问题的绕过、虚拟按键的命令 | [runtime/common/00runtime_overrides.rpy](runtime/common/00runtime_overrides.rpy) |
+| 启动处理、加载画面、屏幕虚拟按键 | [app/src/main/java](app/src/main/java/studio/tsatoru/renpy86) |
+| JoiPlay 虚拟手柄 | [joiplay/joipad](https://github.com/joiplay/joipad) 及其依赖（MIT），见 [third_party/joiplay](third_party/joiplay) |
 | 模块描述（扫描、设置、存档） | [app/src/main/res/raw/tyranor_runtime.json](app/src/main/res/raw/tyranor_runtime.json) |
 
 `librenpython` 总是运行 `python main.py`，并忽略命令行参数。所以 `GameActivity` 在 `preparePython()` 里通过环境变量传递游戏信息，再由前置代码转换成 Ren'Py 的常规命令行：`main.py <游戏目录> --savedir <存档目录>`。指定了游戏目录后，Ren'Py 会从文件系统读取游戏，而不是从 APK 里读取。
@@ -64,7 +65,7 @@ r3 按 Tyranor 第三方模块的流程验证过：
 
 已知问题：
 
-- 大型游戏第一次启动时要从共享存储读取所有资源包的索引，在测试手机上约需 15 秒（有缓存时约 4 秒）。
+- 大型游戏启动较慢：在测试手机上，商业规模的游戏约需 11–13 秒。时间主要花在 Ren'Py 读入全部脚本和执行初始化代码上（都是 CPU 时间，不是存储读取），加载画面会显示进度。
 
 本运行时绕过的上游问题（Android 上的 Ren'Py 8.6.0 + SDL 3.4.18，所以 Ren'Py 官方打包的 Android 版很可能也受影响）：
 

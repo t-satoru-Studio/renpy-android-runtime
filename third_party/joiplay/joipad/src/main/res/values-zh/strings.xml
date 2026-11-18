@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cancel">取消</string>
+    <string name="close">关闭</string>
+    <string name="close_game_message">您想要关闭游戏吗？</string>
+    <string name="error">错误</string>
+    <string name="no">否</string>
+    <string name="ok">好的</string>
+    <string name="yes">是</string>
+    <string name="could_not_save_settings">抱歉，无法保存游戏手柄配置。</string>
+    <string name="button_opacity">按钮不透明度</string>
+    <string name="button_size">按钮大小</string>
+    <string name="left_button">左键</string>
+    <string name="right_button">右键</string>
+    <string name="first_button">第一个按钮</string>
+    <string name="second_button">第二个按钮</string>
+    <string name="third_button">第三个按钮</string>
+    <string name="fourth_button">第四个按钮</string>
+    <string name="fifth_button">第五个按钮</string>
+    <string name="sixth_button">第六个按钮</string>
+    <string name="save">保存</string>
+    <string name="cleft_button">左迷你按钮</string>
+    <string name="cright_button">右迷你按钮</string>
+    <string name="first_set">主要</string>
+    <string name="second_set">选择</string>
+</resources>

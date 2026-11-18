@@ -27,6 +27,14 @@
         ]
       },
       {
+        "key": "virtual_keys", "type": "boolean", "title": "屏幕虚拟按键", "default": true,
+        "description": "屏幕右侧的 ☰ 按钮展开一组按键：菜单、跳过、快进、自动、隐藏、历史、回退、前进、快速存档、快速读档；开启 JoiPlay 虚拟手柄时，还有「手柄」「工具栏」两个开关。按住 ☰ 上下拖动可以移动位置。"
+      },
+      {
+        "key": "gamepad", "type": "boolean", "title": "JoiPlay 虚拟手柄", "default": true,
+        "description": "JoiPlay 的虚拟手柄和工具栏（关闭、旋转、静音、键盘、设置），从屏幕虚拟按键的「手柄」「工具栏」打开；关闭屏幕虚拟按键时，改用屏幕上下边缘中间的箭头。按键可以在手柄设置里修改，保存在游戏目录的 gamepad.json，与 JoiPlay 通用。"
+      },
+      {
         "key": "phone_small_variant", "type": "boolean", "title": "强制手机小屏界面", "default": false,
         "description": "使用 small phone touch android mobile 界面变体。"
       },

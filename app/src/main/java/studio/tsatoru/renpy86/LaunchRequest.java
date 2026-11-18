@@ -33,6 +33,8 @@ public final class LaunchRequest {
         static final String KEY_LESS_MEMORY = "less_memory";
         static final String KEY_LESS_UPDATES = "less_updates";
         static final String KEY_RECOMPILE = "recompile";
+        static final String KEY_VIRTUAL_KEYS = "virtual_keys";
+        static final String KEY_GAMEPAD = "gamepad";
 
         public final Boolean hwVideo;
         public final Boolean autosave;
@@ -41,9 +43,14 @@ public final class LaunchRequest {
         public final Boolean lessMemory;
         public final Boolean lessUpdates;
         public final Boolean recompile;
+        /** On-screen keys; {@code null} means shown, the declared default. */
+        public final Boolean virtualKeys;
+        /** JoiPlay's virtual gamepad; {@code null} means shown, the declared default. */
+        public final Boolean gamepad;
 
         public Settings(Boolean hwVideo, Boolean autosave, Boolean phoneSmallVariant, Boolean vsync,
-                        Boolean lessMemory, Boolean lessUpdates, Boolean recompile) {
+                        Boolean lessMemory, Boolean lessUpdates, Boolean recompile,
+                        Boolean virtualKeys, Boolean gamepad) {
             this.hwVideo = hwVideo;
             this.autosave = autosave;
             this.phoneSmallVariant = phoneSmallVariant;
@@ -51,9 +58,11 @@ public final class LaunchRequest {
             this.lessMemory = lessMemory;
             this.lessUpdates = lessUpdates;
             this.recompile = recompile;
+            this.virtualKeys = virtualKeys;
+            this.gamepad = gamepad;
         }
 
-        static final Settings NONE = new Settings(null, null, null, null, null, null, null);
+        static final Settings NONE = new Settings(null, null, null, null, null, null, null, null, null);
 
         /**
          * Reads the {@code values} object. Unknown keys are ignored, and a known key with a
@@ -70,7 +79,9 @@ public final class LaunchRequest {
                     flag(values, KEY_VSYNC),
                     flag(values, KEY_LESS_MEMORY),
                     flag(values, KEY_LESS_UPDATES),
-                    flag(values, KEY_RECOMPILE));
+                    flag(values, KEY_RECOMPILE),
+                    flag(values, KEY_VIRTUAL_KEYS),
+                    flag(values, KEY_GAMEPAD));
         }
 
         /**
@@ -115,6 +126,8 @@ public final class LaunchRequest {
             putFlag(o, KEY_LESS_MEMORY, lessMemory);
             putFlag(o, KEY_LESS_UPDATES, lessUpdates);
             putFlag(o, KEY_RECOMPILE, recompile);
+            putFlag(o, KEY_VIRTUAL_KEYS, virtualKeys);
+            putFlag(o, KEY_GAMEPAD, gamepad);
             return o;
         }
 

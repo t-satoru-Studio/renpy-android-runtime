@@ -11,7 +11,7 @@
 | Activity | `studio.tsatoru.renpy86.LaunchActivity`（exported） |
 | 模块描述 | 该 Activity 上的 `<meta-data android:name="com.tyranor.runtime.MANIFEST" android:resource="@raw/tyranor_runtime">` |
 | Ren'Py 构建 | `<meta-data android:name="studio.tsatoru.renpy86.RENPY_BUILD">`，例如 `8.6.0.26111403` |
-| versionCode | `MMmmppRR`：Ren'Py 主版本、次版本、补丁版本和运行时修订号（8.6.0 r3 = `8060003`） |
+| versionCode | `MMmmppRR`：Ren'Py 主版本、次版本、补丁版本和运行时修订号（8.6.0 r4 = `8060004`） |
 
 8.6.0-r2 及之前的包名是 `studio.tsatoru.renpy86`，用 action `studio.tsatoru.renpy86.RUN` 和 JoiPlay 式参数启动。这个入口已经删除；新旧两个包可以同时安装。
 
@@ -34,7 +34,7 @@
 
 ## 设置
 
-默认值不改变任何行为：使用默认值时，一切由 Ren'Py 和游戏自己决定。
+Ren'Py 相关的设置项，默认值不改变任何行为：使用默认值时，一切由 Ren'Py 和游戏自己决定。`virtual_keys` 和 `gamepad` 只控制运行时自己画在游戏上面的按键。
 
 | 键 | 类型、默认值 | 效果 |
 |---|---|---|
@@ -45,6 +45,8 @@
 | `less_memory` | 布尔，默认 `false` | 为 `true` 时设置 `RENPY_LESS_MEMORY` |
 | `less_updates` | 布尔，默认 `false` | 为 `true` 时设置 `RENPY_LESS_UPDATES` |
 | `recompile` | 布尔，默认 `false` | 为 `true` 时以 `--compile` 运行 Ren'Py（把 `.rpy` 重新编译为 `.rpyc`） |
+| `virtual_keys` | 布尔，默认 `true` | 为 `false` 时不显示屏幕右侧的 ☰ 虚拟按键面板 |
+| `gamepad` | 布尔，默认 `true` | 为 `false` 时不显示 JoiPlay 虚拟手柄。键位保存在 `<游戏目录>/gamepad.json`，与 JoiPlay 通用 |
 
 ## 文件
 

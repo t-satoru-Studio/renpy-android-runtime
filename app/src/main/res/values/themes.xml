@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        GameActivity: the application theme (pre-Holo, as RAPT's activity expects), with
+        dialogs in the device's current style. JoiPlay's gamepad builds its settings and
+        "close the game?" dialogs from the activity's context, and the old theme would
+        draw them as Android 2-4 did. Views in the activity itself keep the old theme:
+        under Material, the gamepad keyboard's plain Buttons would turn all caps.
+    -->
+    <style name="GameTheme" parent="@android:style/Theme.NoTitleBar.Fullscreen">
+        <item name="android:dialogTheme">@android:style/Theme.DeviceDefault.Dialog</item>
+        <item name="android:alertDialogTheme">@android:style/Theme.DeviceDefault.Dialog.Alert</item>
+    </style>
+</resources>

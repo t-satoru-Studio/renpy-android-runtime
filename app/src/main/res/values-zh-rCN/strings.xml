@@ -14,4 +14,31 @@
     <string name="error_bad_request">Tyranor 发来的请求无法识别。</string>
     <string name="error_no_game">在以下位置没有找到 Ren\'Py 游戏：\n%1$s\n\n该文件夹中必须有 \"game\" 文件夹。</string>
     <string name="error_no_access">没有获得所有文件访问权限。</string>
+
+    <string name="loading_runtime">准备运行时文件</string>
+    <string name="loading_python">启动 Python</string>
+    <string name="loading_engine">载入 Ren\'Py 引擎</string>
+    <string name="loading_files">建立游戏文件索引</string>
+    <string name="loading_bytecode">读取字节码缓存</string>
+    <string name="loading_prepare">准备引擎模块</string>
+    <string name="loading_script">读取脚本</string>
+    <string name="loading_saves">读取存档与设置</string>
+    <string name="loading_init">执行初始化代码</string>
+    <string name="loading_finishing">准备开始</string>
+    <string name="loading_screens">分析界面</string>
+    <string name="loading_display">启动图形</string>
+    <string name="loading_elapsed">已用 %1$s</string>
+
+    <string name="vkey_menu">菜单</string>
+    <string name="vkey_skip">跳过</string>
+    <string name="vkey_fast">按住快进</string>
+    <string name="vkey_auto">自动</string>
+    <string name="vkey_hide">隐藏</string>
+    <string name="vkey_history">历史</string>
+    <string name="vkey_rollback">回退</string>
+    <string name="vkey_rollforward">前进</string>
+    <string name="vkey_quick_save">快存</string>
+    <string name="vkey_quick_load">快读</string>
+    <string name="vkey_gamepad">手柄</string>
+    <string name="vkey_toolbar">工具栏</string>
 </resources>

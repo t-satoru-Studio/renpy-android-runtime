@@ -64,9 +64,44 @@ init -1500 python hide:
 
             was_paused = paused
 
+            # Commands from the virtual keys (GameActivity.pollCommand), for actions
+            # Ren'Py has no default key for. Ren'Py may only run them on its main thread.
+            try:
+                command = GameActivity.pollCommand()
+            except Exception:
+                command = None
+
+            if command:
+                store = sys.modules["store"]
+                try:
+                    store.renpy.invoke_in_main_thread(store._rar_run_command, command)
+                except Exception:
+                    # Still in the init phase, or restarting.
+                    pass
+
     if renpy.android and not any(t.name == "rar-pause-watch" for t in threading.enumerate()):
         # Look the class up here: threads started from Python only see the system
         # class loader, not the app's.
         from jnius import autoclass
         GameActivity = autoclass("studio.tsatoru.renpy86.GameActivity")
         threading.Thread(target=watch_pause, args=(GameActivity,), name="rar-pause-watch", daemon=True).start()
+
+
+# Runs a command from the virtual keys (see above). The keys that Ren'Py has a
+# default binding for send that key instead, so that the game's keymap applies.
+init -1500 python:
+    def _rar_run_command(command):
+        if command == "auto":
+            renpy.run(Preference("auto-forward", "toggle"))
+        elif command == "quick_save":
+            renpy.run(QuickSave())
+        elif command == "quick_load":
+            renpy.run(QuickLoad())
+        elif command == "mute":
+            renpy.run(Preference("all mute", "toggle"))
+        elif command == "quit":
+            renpy.quit(save=True)
+        elif command == "history":
+            if renpy.has_screen("history"):
+                renpy.run(ShowMenu("history"))
+        renpy.restart_interaction()

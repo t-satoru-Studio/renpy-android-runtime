@@ -22,12 +22,14 @@ public class LaunchRequestTest {
     // A payload as Tyranor sends it: every declared key, with its effective value.
     private static final String FULL_SETTINGS = "{\"version\":1,\"values\":{"
             + "\"hw_video\":\"on\",\"autosave\":\"off\",\"phone_small_variant\":false,"
-            + "\"vsync\":true,\"less_memory\":true,\"less_updates\":false,\"recompile\":true}}";
+            + "\"vsync\":true,\"less_memory\":true,\"less_updates\":false,\"recompile\":true,"
+            + "\"virtual_keys\":false,\"gamepad\":false}}";
 
     // The declared defaults.
     private static final String DEFAULT_SETTINGS = "{\"version\":1,\"values\":{"
             + "\"hw_video\":\"game\",\"autosave\":\"game\",\"phone_small_variant\":false,"
-            + "\"vsync\":true,\"less_memory\":false,\"less_updates\":false,\"recompile\":false}}";
+            + "\"vsync\":true,\"less_memory\":false,\"less_updates\":false,\"recompile\":false,"
+            + "\"virtual_keys\":true,\"gamepad\":true}}";
 
     @Test
     public void parsesModuleExtras() throws Exception {
@@ -44,6 +46,15 @@ public class LaunchRequestTest {
         assertEquals(Boolean.TRUE, r.settings.lessMemory);
         assertEquals(Boolean.FALSE, r.settings.lessUpdates);
         assertEquals(Boolean.TRUE, r.settings.recompile);
+        assertEquals(Boolean.FALSE, r.settings.virtualKeys);
+        assertEquals(Boolean.FALSE, r.settings.gamepad);
+    }
+
+    @Test
+    public void virtualKeysSurviveTheHandOverToGameActivity() throws Exception {
+        LaunchRequest r = LaunchRequest.fromExtras("/g", null, FULL_SETTINGS);
+        assertEquals(Boolean.FALSE, LaunchRequest.fromJson(r.toJson()).settings.virtualKeys);
+        assertNull(LaunchRequest.fromExtras("/g", null, null).settings.virtualKeys);
     }
 
     @Test

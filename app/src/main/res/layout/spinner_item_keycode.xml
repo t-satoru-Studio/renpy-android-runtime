@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Replaces joipad's layout of the same name (an app resource wins over a library's).
+    The key spinners in the gamepad settings are 70sdp wide, arrow included, and wrapped
+    names such as PAGE_DOWN over two lines; this keeps each on one line, shrinking the
+    text to fit (Android 8 and later).
+-->
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="32dp"
+    android:gravity="end|center_vertical"
+    android:maxLines="1"
+    android:ellipsize="middle"
+    android:textSize="10sp"
+    android:autoSizeTextType="uniform"
+    android:autoSizeMinTextSize="6sp"
+    android:autoSizeMaxTextSize="10sp"
+    android:padding="@dimen/_2sdp"
+    tools:targetApi="26" />

@@ -15,4 +15,33 @@
     <string name="error_bad_request">Tyranor sent a request this runtime does not understand.</string>
     <string name="error_no_game">No Ren\'Py game was found in:\n%1$s\n\nThe folder must contain a \"game\" folder.</string>
     <string name="error_no_access">All files access was not granted.</string>
+
+    <!-- Loading screen (LoadingOverlay); stages in the order they usually happen. -->
+    <string name="loading_runtime">Preparing runtime files</string>
+    <string name="loading_python">Starting Python</string>
+    <string name="loading_engine">Loading the Ren\'Py engine</string>
+    <string name="loading_files">Indexing game files</string>
+    <string name="loading_bytecode">Reading the bytecode cache</string>
+    <string name="loading_prepare">Preparing engine modules</string>
+    <string name="loading_script">Reading scripts</string>
+    <string name="loading_saves">Reading saves and settings</string>
+    <string name="loading_init">Running init code</string>
+    <string name="loading_finishing">Getting ready</string>
+    <string name="loading_screens">Analyzing screens</string>
+    <string name="loading_display">Starting graphics</string>
+    <string name="loading_elapsed">%1$s elapsed</string>
+
+    <!-- Virtual keys (VirtualKeys). Short: buttons are 64 dp wide. -->
+    <string name="vkey_menu">Menu</string>
+    <string name="vkey_skip">Skip</string>
+    <string name="vkey_fast">Hold FF</string>
+    <string name="vkey_auto">Auto</string>
+    <string name="vkey_hide">Hide</string>
+    <string name="vkey_history">History</string>
+    <string name="vkey_rollback">Back</string>
+    <string name="vkey_rollforward">Forward</string>
+    <string name="vkey_quick_save">Q.Save</string>
+    <string name="vkey_quick_load">Q.Load</string>
+    <string name="vkey_gamepad">Gamepad</string>
+    <string name="vkey_toolbar">Toolbar</string>
 </resources>

@@ -52,6 +52,7 @@
         <!-- Ren'Py itself. Python can start only once per process, hence :game. -->
         <activity
             android:name=".GameActivity"
+            android:theme="@style/GameTheme"
             android:process=":game"
             android:exported="false"
             android:taskAffinity="${applicationId}.game"

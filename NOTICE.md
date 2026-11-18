@@ -11,6 +11,14 @@ The APK built from this repository contains, unmodified:
 
 Exact archive checksums are in [upstream.lock.json](upstream.lock.json).
 
+It also contains, in source form under [third_party/joiplay](third_party/joiplay), with the small changes listed in that directory's README:
+
+| Component | From | License |
+|---|---|---|
+| joipad (virtual gamepad), Copyright (c) 2021 JoiPlay | <https://github.com/joiplay/joipad> | MIT |
+| joiplay commons, Copyright (c) 2021 JoiPlay | <https://github.com/joiplay/commons> | MIT |
+| sdp, Copyright (c) 2013 - 2015 Intuit Inc. | <https://github.com/joiplay/sdp> (fork of <https://github.com/intuit/sdp>) | MIT |
+
 ## Corresponding source
 
 `librenpython.so` links LGPL libraries statically. Their source, and the build system that produced the binary, are published by Ren'Py:

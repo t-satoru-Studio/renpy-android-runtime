@@ -63,7 +63,8 @@ public class ModuleDescriptorTest {
                 LaunchRequest.Settings.KEY_HW_VIDEO, LaunchRequest.Settings.KEY_AUTOSAVE,
                 LaunchRequest.Settings.KEY_PHONE_SMALL_VARIANT, LaunchRequest.Settings.KEY_VSYNC,
                 LaunchRequest.Settings.KEY_LESS_MEMORY, LaunchRequest.Settings.KEY_LESS_UPDATES,
-                LaunchRequest.Settings.KEY_RECOMPILE)), keys);
+                LaunchRequest.Settings.KEY_RECOMPILE, LaunchRequest.Settings.KEY_VIRTUAL_KEYS,
+                LaunchRequest.Settings.KEY_GAMEPAD)), keys);
 
         // The defaults must change nothing: the game runs as Ren'Py and its own code set it up.
         LaunchRequest r = LaunchRequest.fromExtras("/g", null,

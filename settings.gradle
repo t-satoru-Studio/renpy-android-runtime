@@ -23,3 +23,10 @@ if (!new File(staged, "build.gradle").exists()) {
 
 include ":renpyandroid", ":app"
 project(":renpyandroid").projectDir = staged
+
+// JoiPlay's virtual gamepad (MIT), see third_party/joiplay/README.md. joipad refers
+// to the other two as :commons and :sdp.
+include ":joipad", ":commons", ":sdp"
+project(":joipad").projectDir = file("third_party/joiplay/joipad")
+project(":commons").projectDir = file("third_party/joiplay/commons")
+project(":sdp").projectDir = file("third_party/joiplay/sdp")
