@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Looks for a newer release of this runtime on GitHub. Tyranor checks only that a module
+ * Looks for a newer release of this runtime on GitHub. Tyranor Next checks only that a module
  * is new enough to use, not whether a newer one exists, so the runtime does it itself.
  *
  * <p>The only request is a GET of the repository's releases from the GitHub API,

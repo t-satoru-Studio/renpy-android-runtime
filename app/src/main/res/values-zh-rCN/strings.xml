@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Ren\'Py 8.6 运行时</string>
 
-    <string name="info_message">运行时 %1$s\nRen\'Py %2$s\n\n所有文件访问权限：%3$s\n\n本应用为 Tyranor 运行 Ren\'Py 8.6 游戏。请在 Tyranor 的「妙妙工具 → 引擎模块管理」中启用本模块，重新扫描游戏后从 Tyranor 启动。</string>
+    <string name="info_message">运行时 %1$s\nRen\'Py %2$s\n\n所有文件访问权限：%3$s\n\n本应用是 Tyranor Next 的 Ren\'Py 8.6 运行时模块。请在 Tyranor Next 的「工具 → 引擎模块管理」中启用它，重新扫描游戏后从 Tyranor Next 启动游戏。</string>
     <string name="info_access_yes">已授予</string>
     <string name="info_access_no">未授予</string>
 
@@ -11,7 +11,7 @@
     <string name="access_grant">去授权</string>
 
     <string name="error_title">无法启动游戏</string>
-    <string name="error_bad_request">Tyranor 发来的请求无法识别。</string>
+    <string name="error_bad_request">Tyranor Next 发来的请求无法识别。</string>
     <string name="error_no_game">在以下位置没有找到 Ren\'Py 游戏：\n%1$s\n\n该文件夹中必须有 \"game\" 文件夹。</string>
     <string name="error_no_access">没有获得所有文件访问权限。</string>
 

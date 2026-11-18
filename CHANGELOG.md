@@ -1,5 +1,13 @@
 # 更新日志
 
+## 8.6.1-r2
+
+只改说明文字和文档，引擎和功能与 8.6.1-r1 相同。
+
+- 说明里的「Tyranor」改为「Tyranor Next」：这个运行时是 Tyranor Next 的模块，不是 Tyranor 的。信息对话框、错误提示、README、PROTOCOL 和更新日志都已更正。
+- 模块入口的说法跟上 Tyranor Next 当前版本：「工具 → 引擎模块管理」（旧版是侧栏「妙妙工具」）。
+- README 新增「安装与配置」：用真机截图一步步演示授权、启用模块、扫描游戏、单游戏设置，以及游戏里的加载画面、屏幕虚拟按键和手柄。截图在 `docs/images/`。
+
 ## 8.6.1-r1
 
 升级到 Ren'Py **8.6.1.26111705**，并包含原定的 8.6.0-r4（没有单独发布）的全部内容。
@@ -7,7 +15,7 @@
 - Ren'Py 8.6.1 修复了切到后台时卡 8 秒、后台不存档的问题（renpy/renpy#7534），所以删除了本运行时停定时器的绕过。
 - 8.6.1 还修复了：游戏在后台被系统结束后，再次打开时回不到原来的位置；手机上 shift+R 重载或 `renpy.utter_restart` 之后黑屏；以及若干与 Android 无关的问题，见 Ren'Py 的更新说明。
 - 返回键回滚的绕过保留：8.6.1 的更新说明列了这项修复（renpy/renpy#7533），但官方 RAPT 压缩包里并没有它。
-- 新增更新检查：Tyranor 只检查模块版本够不够用，不会提示有新版本，所以运行时自己向 GitHub 查询本仓库的发布列表（预发布也算）。从桌面打开本应用时会检查，并在信息对话框里显示结果；游戏启动后每天最多在后台检查一次，有新版本时在画面下方短暂提示，可以打开发布页，点 ✕ 后这个版本不再提示。为此新增了网络权限，这是唯一的网络请求，不发送设备、游戏或玩家信息。
+- 新增更新检查：Tyranor Next 只检查模块版本够不够用，不会提示有新版本，所以运行时自己向 GitHub 查询本仓库的发布列表（预发布也算）。从桌面打开本应用时会检查，并在信息对话框里显示结果；游戏启动后每天最多在后台检查一次，有新版本时在画面下方短暂提示，可以打开发布页，点 ✕ 后这个版本不再提示。为此新增了网络权限，这是唯一的网络请求，不发送设备、游戏或玩家信息。
 - 新增设置项「检查运行时更新」（`update_check`），默认开启，关闭后游戏中不再检查。
 
 以下为原定的 8.6.0-r4 内容：
@@ -20,11 +28,11 @@
 
 ## 8.6.0-r3
 
-运行时改为 Tyranor 第三方运行时模块。**包名已改为** `com.tyranor.runtime.renpy86`，所以 r3 会作为一个新应用安装，和 r2 并存；装过 r2（`studio.tsatoru.renpy86`）的话请自行卸载。
+运行时改为 Tyranor Next 第三方运行时模块。**包名已改为** `com.tyranor.runtime.renpy86`，所以 r3 会作为一个新应用安装，和 r2 并存；装过 r2（`studio.tsatoru.renpy86`）的话请自行卸载。
 
-- 改用 Tyranor 的模块启动协议（`com.tyranor.runtime.action.LAUNCH`，以及 `FOLDER_PATH`、`GAME_TITLE`、`SETTINGS`）。删除了 JoiPlay 式的 `studio.tsatoru.renpy86.RUN` 入口。
-- 新增模块描述 `res/raw/tyranor_runtime.json`：Tyranor 据此识别 Ren'Py 8.6 及以后版本的游戏（同时有 `game/` 和 `renpy/asynctask.py*` 的目录）、显示单游戏设置，并管理 `<游戏目录>/saves`。
-- 设置改为在 Tyranor 中按游戏单独设置。「硬件视频解码」和「自动存档」可以跟随游戏，也可以强制开或关。
+- 改用 Tyranor Next 的模块启动协议（`com.tyranor.runtime.action.LAUNCH`，以及 `FOLDER_PATH`、`GAME_TITLE`、`SETTINGS`）。删除了 JoiPlay 式的 `studio.tsatoru.renpy86.RUN` 入口。
+- 新增模块描述 `res/raw/tyranor_runtime.json`：Tyranor Next 据此识别 Ren'Py 8.6 及以后版本的游戏（同时有 `game/` 和 `renpy/asynctask.py*` 的目录）、显示单游戏设置，并管理 `<游戏目录>/saves`。
+- 设置改为在 Tyranor Next 中按游戏单独设置。「硬件视频解码」和「自动存档」可以跟随游戏，也可以强制开或关。
 - 不再自行设置 `SDL_ANDROID_BLOCK_ON_PAUSE`：Ren'Py 的 `librenpython` 在 SDL 启动前已经设好了。r2 说明里写的「Ren'Py 设置得太晚」是错的。
 
 ## 8.6.0-r2
