@@ -25,53 +25,32 @@ init 1500 python hide:
         config.autosave_on_choice = autosave
 
 
-# Let Ren'Py see that it was sent to the background.
+# Commands from the on-screen keys (GameActivity.pollCommand), for actions Ren'Py
+# has no default key for. A thread polls for them and has Ren'Py run them on its
+# main thread, the only one that may.
 #
-# When the app pauses, SDL queues SDL_EVENT_WILL_ENTER_BACKGROUND, which Ren'Py
-# answers by saving and telling RAPT's onStop it may finish (Interface.
-# check_suspend). But SDL 3's Android_PumpEvents only returns after a lifecycle
-# wait times out with nothing arriving, and while paused every timer event wakes
-# that wait again. Ren'Py's PERIODIC timer fires every 50 ms, so the event never
-# reaches Ren'Py until the app resumes, and onStop blocks the main thread for its
-# 8 s limit. Stopping the timers as SDL pauses, which check_suspend would do first
-# anyway, lets the wait time out. check_suspend restarts them in the foreground.
-# Needs SDL_ANDROID_BLOCK_ON_PAUSE=0, which librenpython sets before SDL starts.
+# Up to 8.6.0, this thread also stopped Ren'Py's timers when SDL paused, so that
+# Android_PumpEvents could deliver SDL_EVENT_WILL_ENTER_BACKGROUND (renpy/renpy#7534).
+# Ren'Py 8.6.1 suspends the timers itself.
 init -1500 python hide:
     import threading
 
-    def watch_pause(GameActivity):
+    def poll_commands(GameActivity):
         import sys
         import time
-
-        was_paused = False
 
         while True:
             time.sleep(0.1)
 
             try:
-                paused = bool(GameActivity.isNativePaused())
+                command = GameActivity.pollCommand()
             except Exception:
                 time.sleep(1)
                 continue
 
-            if paused and not was_paused:
+            if command:
                 # Looked up each time: Ren'Py reloads its modules on a full restart,
                 # while this thread lives on.
-                core = sys.modules["renpy.display.core"]
-                set_timer = sys.modules["renpy.pygame.time"].set_timer
-                for event in (core.PERIODIC, core.REDRAW, core.TIMEEVENT):
-                    set_timer(event, 0)
-
-            was_paused = paused
-
-            # Commands from the virtual keys (GameActivity.pollCommand), for actions
-            # Ren'Py has no default key for. Ren'Py may only run them on its main thread.
-            try:
-                command = GameActivity.pollCommand()
-            except Exception:
-                command = None
-
-            if command:
                 store = sys.modules["store"]
                 try:
                     store.renpy.invoke_in_main_thread(store._rar_run_command, command)
@@ -79,12 +58,12 @@ init -1500 python hide:
                     # Still in the init phase, or restarting.
                     pass
 
-    if renpy.android and not any(t.name == "rar-pause-watch" for t in threading.enumerate()):
+    if renpy.android and not any(t.name == "rar-commands" for t in threading.enumerate()):
         # Look the class up here: threads started from Python only see the system
         # class loader, not the app's.
         from jnius import autoclass
         GameActivity = autoclass("studio.tsatoru.renpy86.GameActivity")
-        threading.Thread(target=watch_pause, args=(GameActivity,), name="rar-pause-watch", daemon=True).start()
+        threading.Thread(target=poll_commands, args=(GameActivity,), name="rar-commands", daemon=True).start()
 
 
 # Runs a command from the virtual keys (see above). The keys that Ren'Py has a

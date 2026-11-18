@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Ren\'Py 8.6 Runtime</string>
-    <string name="renpy_build" translatable="false">8.6.0.26111403</string>
+    <string name="renpy_build" translatable="false">8.6.1.26111705</string>
 
     <string name="info_message">Runtime %1$s\nRen\'Py %2$s\n\nAll files access: %3$s\n\nThis app runs Ren\'Py 8.6 games for Tyranor. Enable it in Tyranor under Engine modules, scan your games again, then start them from Tyranor.</string>
     <string name="info_access_yes">granted</string>

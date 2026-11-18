@@ -10,8 +10,8 @@
 | Action | `com.tyranor.runtime.action.LAUNCH`，category 为 `DEFAULT` |
 | Activity | `studio.tsatoru.renpy86.LaunchActivity`（exported） |
 | 模块描述 | 该 Activity 上的 `<meta-data android:name="com.tyranor.runtime.MANIFEST" android:resource="@raw/tyranor_runtime">` |
-| Ren'Py 构建 | `<meta-data android:name="studio.tsatoru.renpy86.RENPY_BUILD">`，例如 `8.6.0.26111403` |
-| versionCode | `MMmmppRR`：Ren'Py 主版本、次版本、补丁版本和运行时修订号（8.6.0 r4 = `8060004`） |
+| Ren'Py 构建 | `<meta-data android:name="studio.tsatoru.renpy86.RENPY_BUILD">`，例如 `8.6.1.26111705` |
+| versionCode | `MMmmppRR`：Ren'Py 主版本、次版本、补丁版本和运行时修订号（8.6.1 r1 = `8060101`） |
 
 8.6.0-r2 及之前的包名是 `studio.tsatoru.renpy86`，用 action `studio.tsatoru.renpy86.RUN` 和 JoiPlay 式参数启动。这个入口已经删除；新旧两个包可以同时安装。
 

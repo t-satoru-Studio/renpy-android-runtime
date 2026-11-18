@@ -1,20 +1,20 @@
 {
-  "renpy_version": "8.6.0",
-  "renpy_build": "8.6.0.26111403",
+  "renpy_version": "8.6.1",
+  "renpy_build": "8.6.1.26111705",
   "downloads": {
     "rapt": {
-      "url": "https://www.renpy.org/dl/8.6.0/renpy-8.6.0-rapt.zip",
-      "sha256": "37748b4a9ffacb1b36cd27a60e09fefc8dc445c7a3f7d533c9238bd60330d4fb"
+      "url": "https://www.renpy.org/dl/8.6.1/renpy-8.6.1-rapt.zip",
+      "sha256": "8f92b3e2dbe65d624a9b0fcf1bb5d5ab7e2ee7bca621a4e4f4d8f3e664e39142"
     },
     "sdk": {
-      "url": "https://www.renpy.org/dl/8.6.0/renpy-8.6.0-sdk.tar.bz2",
-      "sha256": "5763c1d5f35de4e62e29df5387636e8bca681050c6523564db17bc09a48b3dd4"
+      "url": "https://www.renpy.org/dl/8.6.1/renpy-8.6.1-sdk.tar.bz2",
+      "sha256": "4d76d88f690ff7d600218dad3941dfddb88e2104e107367a0600a17364335509"
     }
   },
-  "checksums_source": "https://www.renpy.org/dl/8.6.0/checksums.txt",
+  "checksums_source": "https://www.renpy.org/dl/8.6.1/checksums.txt",
   "corresponding_source": {
-    "renpy": "https://github.com/renpy/renpy/tree/8.6.0.26111403",
-    "renpy_build": "https://github.com/renpy/renpy-build/tree/renpy-8.6.0.26111403"
+    "renpy": "https://github.com/renpy/renpy/tree/8.6.1.26111705",
+    "renpy_build": "https://github.com/renpy/renpy-build/tree/renpy-8.6.1.26111705"
   },
   "abis": ["arm64-v8a"]
 }

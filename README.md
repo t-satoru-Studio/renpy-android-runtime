@@ -4,7 +4,7 @@
 
 Ren'Py 官方的 Android 支持（RAPT）会把一个游戏打包成一个 APK。本应用原样保留 Ren'Py 自己的引擎和 Android 代码，只是让它去读取共享存储里的游戏。它实现了 Tyranor 的第三方运行时模块协议（见 [PROTOCOL.md](PROTOCOL.md)）：Tyranor 通过包名和启动 action 发现它，按它声明的扫描描述识别 Ren'Py 8.6 及以后版本的游戏，再把游戏文件夹交给它启动。
 
-- Ren'Py **8.6.0.26111403**（SDL3、Python 3.12），使用官方预编译的 `librenpython.so`
+- Ren'Py **8.6.1.26111705**（SDL3、Python 3.12），使用官方预编译的 `librenpython.so`
 - arm64-v8a，Android 6.0（API 23）及以上
 - 存档位于 `<游戏目录>/saves`，与电脑上的 Ren'Py 相同；已向 Tyranor 声明，可由 Tyranor 管理和同步
 
@@ -20,8 +20,8 @@ Ren'Py 官方的 Android 支持（RAPT）会把一个游戏打包成一个 APK�
 
 | 组成部分 | 来源 |
 |---|---|
-| 引擎、Python、SDL3（`librenpython.so`）、Ren'Py 的 Android Java 代码 | 官方 `renpy-8.6.0-rapt.zip`，未修改 |
-| Ren'Py 的 Python 代码、标准库、`renpy/common` | 官方 `renpy-8.6.0-sdk.tar.bz2`，未修改，按 RAPT 的方式布置 |
+| 引擎、Python、SDL3（`librenpython.so`）、Ren'Py 的 Android Java 代码 | 官方 `renpy-8.6.1-rapt.zip`，未修改 |
+| Ren'Py 的 Python 代码、标准库、`renpy/common` | 官方 `renpy-8.6.1-sdk.tar.bz2`，未修改，按 RAPT 的方式布置 |
 | `main.py` | Ren'Py 的 `renpy.py`，加上一小段前置代码（[runtime/main_prelude.py](runtime/main_prelude.py)）：传递游戏信息，并向加载画面报告进度 |
 | Ren'Py 没有开关的设置项、切后台问题的绕过、虚拟按键的命令 | [runtime/common/00runtime_overrides.rpy](runtime/common/00runtime_overrides.rpy) |
 | 启动处理、加载画面、屏幕虚拟按键 | [app/src/main/java](app/src/main/java/studio/tsatoru/renpy86) |
@@ -52,7 +52,7 @@ properties 文件中包含 `storeFile`、`storePassword`、`keyAlias` 和 `keyPa
 
 ## 状态
 
-在一台手机（Android 16，骁龙 8s Gen 3，arm64）上用 Ren'Py 8.6.0 游戏测试过：一款商业规模的游戏（5.6 GB 的 RPA 资源包，含视频和中日文文本），以及 Ren'Py 自带的示例游戏。
+在一台手机（Android 16，骁龙 8s Gen 3，arm64）上用 Ren'Py 8.6 游戏测试过：一款商业规模的游戏（5.6 GB 的 RPA 资源包，含视频和中日文文本），以及 Ren'Py 自带的示例游戏。
 
 r3 按 Tyranor 第三方模块的流程验证过：
 - 模块能被发现，默认关闭，可以启用；
@@ -67,10 +67,13 @@ r3 按 Tyranor 第三方模块的流程验证过：
 
 - 大型游戏启动较慢：在测试手机上，商业规模的游戏约需 11–13 秒。时间主要花在 Ren'Py 读入全部脚本和执行初始化代码上（都是 CPU 时间，不是存储读取），加载画面会显示进度。
 
-本运行时绕过的上游问题（Android 上的 Ren'Py 8.6.0 + SDL 3.4.18，所以 Ren'Py 官方打包的 Android 版很可能也受影响）：
+本运行时绕过的上游问题（Android 上的 Ren'Py 8.6.1 + SDL 3.4.18）：
 
-- **Android 16 上按返回会直接关闭游戏。** 以 API 36 为目标的应用只能通过返回分发器收到返回操作，不再收到按键事件，SDL 拦不住它，游戏还在运行时 Activity 就被关掉了。`GameActivity` 注册了一个返回回调，把返回键交给 Ren'Py（回滚）。SDL 的 `main` 分支已修复（[libsdl-org/SDL#16052](https://github.com/libsdl-org/SDL/pull/16052)），但 3.4 分支没有；已报告为 [renpy/renpy#7533](https://github.com/renpy/renpy/issues/7533)。
-- **切到后台时主线程卡 8 秒，而且后台不存档。** Ren'Py 关闭了 SDL 的暂停阻塞（`SDL_ANDROID_BLOCK_ON_PAUSE=0`），但应用暂停期间，只要事件至少每 100 毫秒到达一次，SDL 的 `Android_PumpEvents` 就会一直等待，而 Ren'Py 每 50 毫秒触发一次的定时器会不断唤醒它。于是 `SDL_EVENT_WILL_ENTER_BACKGROUND` 要到恢复前台时才送达 Ren'Py，RAPT 的 `onStop` 只能等满 8 秒上限。本运行时在 SDL 暂停时停掉 Ren'Py 的定时器（`runtime/common/00runtime_overrides.rpy`），现在 `onStop` 约 1 秒结束，且结束前 Ren'Py 已完成存档。已报告为 [libsdl-org/SDL#16744](https://github.com/libsdl-org/SDL/issues/16744) 和 [renpy/renpy#7534](https://github.com/renpy/renpy/issues/7534)。
+- **Android 16 上按返回会直接关闭游戏。** 以 API 36 为目标的应用只能通过返回分发器收到返回操作，不再收到按键事件，SDL 拦不住它，游戏还在运行时 Activity 就被关掉了。`GameActivity` 注册了一个返回回调，把返回键交给 Ren'Py（回滚）。已报告为 [renpy/renpy#7533](https://github.com/renpy/renpy/issues/7533)。Ren'Py 在 RAPT 中修复了它（renpy-build `5d80c67`），8.6.1 的更新说明也列了这一条，但官方的 `renpy-8.6.1-rapt.zip` 是在这个提交之前构建的，并不包含修复，所以本运行时的回调仍然需要。
+
+已在上游修复、本运行时不再绕过的问题：
+
+- **切到后台时主线程卡 8 秒，而且后台不存档**（[renpy/renpy#7534](https://github.com/renpy/renpy/issues/7534)，[libsdl-org/SDL#16744](https://github.com/libsdl-org/SDL/issues/16744)）。应用暂停期间，只要事件至少每 100 毫秒到达一次，SDL 的 `Android_PumpEvents` 就不会返回，而 Ren'Py 的定时器每 50 毫秒触发一次，于是进入后台的事件要到恢复前台时才送达。8.6.0-r2 至 r4 在 SDL 暂停时停掉 Ren'Py 的定时器；Ren'Py 8.6.1 在 SDL 报告进入后台时自己暂停定时器。
 
 不支持：用 Ren'Py 7（Python 2）制作的游戏、需要其他平台原生 Python 模块的游戏、Live2D（未包含 Cubism 库）。
 

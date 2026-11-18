@@ -23,15 +23,15 @@ android {
         applicationId = "com.tyranor.runtime.renpy86"
         minSdk = 23
         targetSdk = 36
-        // <major><minor:2><patch:2><revision:2>: Ren'Py 8.6.0, runtime revision 4.
-        versionCode = 8060004
-        versionName = "8.6.0-r4"
+        // <major><minor:2><patch:2><revision:2>: Ren'Py 8.6.1, runtime revision 1.
+        versionCode = 8060101
+        versionName = "8.6.1-r1"
 
         ndk {
             abiFilters "arm64-v8a"
         }
 
-        manifestPlaceholders = [renpyBuild: "8.6.0.26111403"]
+        manifestPlaceholders = [renpyBuild: "8.6.1.26111705"]
     }
 
     signingConfigs {

@@ -2,7 +2,7 @@
 # Copyright (C) 2026 t-satoru
 # SPDX-License-Identifier: GPL-3.0-or-later
 """
-Stage the upstream Ren'Py 8.6.0 Android runtime for the Gradle build.
+Stage the upstream Ren'Py Android runtime pinned in upstream.lock.json for the Gradle build.
 
 Downloads the official RAPT (Android packaging) and SDK archives pinned in
 upstream.lock.json, checks their SHA-256, and builds build/staging/:

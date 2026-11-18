@@ -119,6 +119,11 @@ public class GameActivity extends PythonSDLActivity {
             // the running game. Hand back to Ren'Py as the key it expects (K_AC_BACK,
             // rollback). Older versions deliver the key event, and SDL keeps it because
             // of SDL_ANDROID_TRAP_BACK_BUTTON (see RuntimeEnvironment).
+            //
+            // Ren'Py fixed this in RAPT (renpy/renpy#7533, renpy-build 5d80c67), but the
+            // 8.6.1 RAPT archive was built before that commit and lacks it. Once RAPT
+            // registers its own callback, this one, registered later, takes the presses
+            // and RAPT's goes unused, so both can stay.
             OnBackInvokedCallback callback = () -> {
                 onNativeKeyDown(KeyEvent.KEYCODE_BACK);
                 onNativeKeyUp(KeyEvent.KEYCODE_BACK);
@@ -245,15 +250,6 @@ public class GameActivity extends PythonSDLActivity {
     /** The next command from the virtual keys, or null. */
     public static String pollCommand() {
         return commands.poll();
-    }
-
-    /**
-     * Whether SDL has paused the native side (the surface is gone). Read by the pause
-     * watcher in runtime/common/00runtime_overrides.rpy; returns a primitive so that
-     * Python threads need no app class loader to use it.
-     */
-    public static boolean isNativePaused() {
-        return mCurrentNativeState == NativeState.PAUSED;
     }
 
     @Override
